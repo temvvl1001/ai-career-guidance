@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  testResults  TestResult[]
+  skillResults SkillResult[]
+}
+
+model TestResult {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mbtiType  String
+  answers   Json     // Array of { questionId, answer }
+  scores    Json     // Personality dimension scores
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model SkillResult {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  career    String
+  score     Int
+  answers   Json     // Array of { questionId, answer, isCorrect }
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
