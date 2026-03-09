@@ -43,3 +43,23 @@ model SkillResult {
 
   @@index([userId])
 }
+<<<<<<< HEAD
+=======
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? 
+  access_token       String? 
+  expires_at         Int?    
+  token_type         String? 
+  scope              String? 
+  id_token           String? 
+  session_state      String? 
+  user               User    @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd

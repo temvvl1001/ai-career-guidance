@@ -84,7 +84,11 @@ export default function Header() {
               </div>
             ) : (
               <Link
+<<<<<<< HEAD
                 href="/"
+=======
+                href="/login"
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 Sign In

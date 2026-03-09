@@ -7,7 +7,11 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 const COOKIE_NAME = "auth-token";
+<<<<<<< HEAD
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+=======
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 3; // 3 days
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -21,7 +25,11 @@ export async function createToken(payload: { userId: string; email: string }): P
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
+<<<<<<< HEAD
     .setExpirationTime("7d")
+=======
+    .setExpirationTime("3d")
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
     .sign(JWT_SECRET);
 }
 

@@ -25,11 +25,14 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
     setLoading(true);
 
     try {
+<<<<<<< HEAD
       const user = {
     email: "mka@gmail.com",
     password: "123456"
   
       }
+=======
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
       const body = isLogin
         ? { email, password }
@@ -43,9 +46,13 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
 
       const data = await res.json();
 
+<<<<<<< HEAD
       if (!res.ok) {
         throw new Error(data.error || "Something went wrong");
       }
+=======
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 
       setUser({ id: data.user.id, email: data.user.email, name: data.user.name });
       onSuccess?.();
@@ -58,6 +65,14 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleGoogleSignIn = () => {
+    const callbackUrl = encodeURIComponent("/dashboard");
+    window.location.href = `/api/auth/signin/google?callbackUrl=${callbackUrl}`;
+  };
+
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
   if (!isOpen) return null;
 
   return (
@@ -87,10 +102,21 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           )}
 
           <div>
+<<<<<<< HEAD
             <label className="block text-sm font-medium text-dark-300 mb-2">
               Email
             </label>
             <input
+=======
+            <label
+              htmlFor="popup-email"
+              className="block text-sm font-medium text-dark-300 mb-2"
+            >
+              Email
+            </label>
+            <input
+              id="popup-email"
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -102,10 +128,21 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
 
           {!isLogin && (
             <div>
+<<<<<<< HEAD
               <label className="block text-sm font-medium text-dark-300 mb-2">
                 Name (optional)
               </label>
               <input
+=======
+              <label
+                htmlFor="popup-name"
+                className="block text-sm font-medium text-dark-300 mb-2"
+              >
+                Name (optional)
+              </label>
+              <input
+                id="popup-name"
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -116,10 +153,21 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           )}
 
           <div>
+<<<<<<< HEAD
             <label className="block text-sm font-medium text-dark-300 mb-2">
               Password
             </label>
             <input
+=======
+            <label
+              htmlFor="popup-password"
+              className="block text-sm font-medium text-dark-300 mb-2"
+            >
+              Password
+            </label>
+            <input
+              id="popup-password"
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -139,7 +187,21 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           </button>
         </form>
 
+<<<<<<< HEAD
         <div className="px-6 pb-6">
+=======
+        <div className="px-6 pb-6 flex flex-col gap-3">
+          {/* Google Sign In */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
+          >
+            Sign in with Google
+          </button>
+
+          {/* Toggle Email/Password form */}
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
           <button
             onClick={() => {
               setIsLogin(!isLogin);
@@ -155,4 +217,8 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
