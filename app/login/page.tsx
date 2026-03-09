@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -11,7 +11,36 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProviders = async () => {
+      try {
+        const res = await fetch("/api/auth/providers");
+        if (!res.ok) {
+          if (active) setGoogleAvailable(false);
+          return;
+        }
+
+        const providers = await res.json();
+        if (active) {
+          setGoogleAvailable(Boolean(providers?.google));
+        }
+      } catch {
+        if (active) {
+          setGoogleAvailable(false);
+        }
+      }
+    };
+
+    loadProviders();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,13 +164,20 @@ export default function LoginPage() {
           </form>
 
           <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
-            >
-              Sign in with Google
-            </button>
+            {googleAvailable && (
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                Sign in with Google
+              </button>
+            )}
+            {!googleAvailable && (
+              <p className="text-xs text-dark-400 text-center">
+                Google sign-in is not configured yet.
+              </p>
+            )}
 
             <button
               onClick={() => {

@@ -8,32 +8,77 @@ const MODEL_CANDIDATES = [
     .split(",")
     .map((model) => model.trim())
     .filter(Boolean),
-  "gemini-3-flash-preview",
   "gemini-2.5-flash",
   "gemini-2.0-flash",
   "gemini-2.0-flash-lite",
+  "gemini-3-flash-preview",
 ].filter(Boolean) as string[];
 
 function getCandidateModels(): string[] {
   return [...new Set(MODEL_CANDIDATES)];
 }
 
-function isModelUnavailableError(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
+function parseErrorStatus(error: unknown): number {
+  if (!error || typeof error !== "object") return 0;
+  const candidate = error as { status?: unknown };
+  return typeof candidate.status === "number" ? candidate.status : 0;
+}
 
-  const err = error as { status?: number; message?: string };
-  const status = err.status || 0;
-  const message = (err.message || "").toLowerCase();
+function parseErrorMessage(error: unknown): string {
+  if (!error || typeof error !== "object") return "";
 
-  if (status === 404) return true;
-  if (status === 400 && message.includes("model")) return true;
+  const candidate = error as { message?: unknown };
+  const raw = typeof candidate.message === "string" ? candidate.message : "";
+  if (!raw) return "";
+
+  try {
+    const parsed = JSON.parse(raw) as { error?: { message?: string } };
+    const nested = parsed?.error?.message;
+    if (typeof nested === "string" && nested.trim().length > 0) {
+      return nested.toLowerCase();
+    }
+  } catch {
+    // Use raw message when parsing fails.
+  }
+
+  return raw.toLowerCase();
+}
+
+function isAuthError(error: unknown): boolean {
+  const status = parseErrorStatus(error);
+  const message = parseErrorMessage(error);
+
+  if (status === 401 || status === 403) return true;
+
+  return (
+    message.includes("api key not valid") ||
+    message.includes("permission denied") ||
+    message.includes("insufficient authentication")
+  );
+}
+
+function isRetryableOrModelFallbackError(error: unknown): boolean {
+  const status = parseErrorStatus(error);
+  const message = parseErrorMessage(error);
+
+  if ([400, 404, 429, 500, 502, 503, 504].includes(status)) return true;
 
   return (
     message.includes("not found") ||
     message.includes("not supported") ||
     message.includes("call listmodels") ||
-    message.includes("unknown model")
+    message.includes("unknown model") ||
+    message.includes("high demand") ||
+    message.includes("overloaded") ||
+    message.includes("unavailable") ||
+    message.includes("resource exhausted") ||
+    message.includes("quota exceeded") ||
+    message.includes("rate limit")
   );
+}
+
+async function wait(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function extractText(response: { text?: string; candidates?: { content?: { parts?: { text?: string }[] } }[] }): string {
@@ -50,20 +95,36 @@ async function runWithModelFallback<T>(task: (modelName: string) => Promise<T>):
   let lastError: unknown;
 
   for (const modelName of models) {
-    try {
-      return await task(modelName);
-    } catch (error) {
-      lastError = error;
-      if (isModelUnavailableError(error)) {
-        console.warn(`Gemini model unavailable: ${modelName}. Trying next model.`);
-        continue;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        return await task(modelName);
+      } catch (error) {
+        lastError = error;
+
+        if (isAuthError(error)) {
+          throw error;
+        }
+
+        const retryable = isRetryableOrModelFallbackError(error);
+        const canRetrySameModel = retryable && attempt === 0;
+        if (canRetrySameModel) {
+          await wait(300);
+          continue;
+        }
+
+        if (retryable) {
+          console.warn(`Gemini request failed for model "${modelName}". Trying next model.`);
+          break;
+        }
+
+        throw error;
       }
-      throw error;
     }
   }
 
   if (lastError instanceof Error) {
-    throw new Error(`No available Gemini model. Last error: ${lastError.message}`);
+    const detailMessage = parseErrorMessage(lastError) || lastError.message;
+    throw new Error(`No available Gemini model. Last error: ${detailMessage}`);
   }
   throw new Error("No available Gemini model.");
 }

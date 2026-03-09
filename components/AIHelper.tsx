@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Bot, User } from "lucide-react";
 
 const MAX_HISTORY_MESSAGES = 50;
-const SHARED_HISTORY_STORAGE_KEY = "ai-helper:history:v2:global";
-const SHARED_OPEN_STATE_KEY = "ai-helper:open:v2:global";
-const LEGACY_HISTORY_PREFIX = "ai-helper:history:v1:";
+const SHARED_OPEN_STATE_KEY = "ai-helper:open:v3:global";
 const HISTORY_SYNC_EVENT = "ai-helper:history-sync";
 
 interface Message {
@@ -26,21 +24,20 @@ const isValidMessage = (value: unknown): value is Message => {
   const candidate = value as Partial<Message>;
   return (
     (candidate.role === "user" || candidate.role === "assistant") &&
-    typeof candidate.content === "string"
+    typeof candidate.content === "string" &&
+    candidate.content.trim().length > 0
   );
 };
 
-const parseStoredMessages = (raw: string | null): Message[] => {
-  if (!raw) return [];
-
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed)
-      ? parsed.filter(isValidMessage).slice(-MAX_HISTORY_MESSAGES)
-      : [];
-  } catch {
-    return [];
-  }
+const parseApiMessages = (raw: unknown): Message[] => {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(isValidMessage)
+    .map((message) => ({
+      role: message.role,
+      content: message.content.trim(),
+    }))
+    .slice(-MAX_HISTORY_MESSAGES);
 };
 
 const areMessagesEqual = (left: Message[], right: Message[]) => {
@@ -58,44 +55,17 @@ const areMessagesEqual = (left: Message[], right: Message[]) => {
   return true;
 };
 
-const migrateLegacyHistory = (): Message[] => {
-  if (typeof window === "undefined") return [];
-
-  let migrated: Message[] = [];
-  const legacyKeys = Object.keys(localStorage).filter((key) =>
-    key.startsWith(LEGACY_HISTORY_PREFIX)
-  );
-
-  for (const key of legacyKeys) {
-    const candidate = parseStoredMessages(localStorage.getItem(key));
-    if (candidate.length > migrated.length) {
-      migrated = candidate;
-    }
-  }
-
-  if (migrated.length > 0) {
-    localStorage.setItem(
-      SHARED_HISTORY_STORAGE_KEY,
-      JSON.stringify(migrated)
-    );
-  }
-
-  return migrated;
-};
-
 export default function AIHelper({
   personalityType,
   career,
   compact = false,
 }: AIHelperProps) {
-  const historyStorageKey = SHARED_HISTORY_STORAGE_KEY;
   const openStateStorageKey = SHARED_OPEN_STATE_KEY;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [historyReady, setHistoryReady] = useState(false);
   const [openStateReady, setOpenStateReady] = useState(!compact);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -103,82 +73,87 @@ export default function AIHelper({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const loadHistory = useCallback(async () => {
+    try {
+      const res = await fetch("/api/ai/chat", { method: "GET" });
+      if (!res.ok) {
+        if (res.status === 401) {
+          setMessages([]);
+        }
+        return;
+      }
+
+      const data = await res.json();
+      const nextMessages = parseApiMessages(data?.messages);
+      setMessages((prev) => (areMessagesEqual(prev, nextMessages) ? prev : nextMessages));
+    } catch {
+      // keep current state if sync fails
+    }
+  }, []);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
+    void loadHistory();
+
     if (typeof window === "undefined") return;
-
-    setHistoryReady(false);
-    setOpenStateReady(!compact);
-
-    try {
-      const rawHistory = localStorage.getItem(historyStorageKey);
-      const restoredMessages = rawHistory
-        ? parseStoredMessages(rawHistory)
-        : migrateLegacyHistory();
-      setMessages(restoredMessages);
-
-      if (compact) {
-        setIsOpen(localStorage.getItem(openStateStorageKey) === "1");
-      }
-    } catch {
-      setMessages([]);
-      if (compact) {
-        setIsOpen(false);
-      }
-    } finally {
-      setHistoryReady(true);
-      if (compact) {
-        setOpenStateReady(true);
-      }
-    }
-  }, [compact, historyStorageKey, openStateStorageKey]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const syncMessages = () => {
-      const nextMessages = parseStoredMessages(localStorage.getItem(historyStorageKey));
-      setMessages((prev) => (areMessagesEqual(prev, nextMessages) ? prev : nextMessages));
+    const onSync = () => {
+      void loadHistory();
     };
 
-    const onStorage = (event: StorageEvent) => {
-      if (event.key && event.key !== historyStorageKey) return;
-      syncMessages();
-    };
-
-    window.addEventListener("storage", onStorage);
-    window.addEventListener(HISTORY_SYNC_EVENT, syncMessages);
-
+    window.addEventListener(HISTORY_SYNC_EVENT, onSync);
     return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener(HISTORY_SYNC_EVENT, syncMessages);
+      window.removeEventListener(HISTORY_SYNC_EVENT, onSync);
     };
-  }, [historyStorageKey]);
+  }, [loadHistory]);
 
   useEffect(() => {
-    if (!historyReady || typeof window === "undefined") return;
+    if (!compact || typeof window === "undefined") return;
 
-    const serialized = JSON.stringify(messages.slice(-MAX_HISTORY_MESSAGES));
-    if (localStorage.getItem(historyStorageKey) === serialized) return;
-
-    localStorage.setItem(historyStorageKey, serialized);
-    window.dispatchEvent(new Event(HISTORY_SYNC_EVENT));
-  }, [messages, historyStorageKey, historyReady]);
+    setOpenStateReady(false);
+    try {
+      setIsOpen(localStorage.getItem(openStateStorageKey) === "1");
+    } catch {
+      setIsOpen(false);
+    } finally {
+      setOpenStateReady(true);
+    }
+  }, [compact, openStateStorageKey]);
 
   useEffect(() => {
     if (!compact || !openStateReady || typeof window === "undefined") return;
-
     localStorage.setItem(openStateStorageKey, isOpen ? "1" : "0");
   }, [compact, isOpen, openStateStorageKey, openStateReady]);
 
-  const clearHistory = () => {
-    setMessages([]);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(historyStorageKey);
-      window.dispatchEvent(new Event(HISTORY_SYNC_EVENT));
+  const clearHistory = async () => {
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/ai/chat", { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to clear history");
+      }
+
+      setMessages([]);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event(HISTORY_SYNC_EVENT));
+      }
+    } catch (error) {
+      const errorEntry: Message = {
+        role: "assistant",
+        content:
+          error instanceof Error
+            ? error.message
+            : "Failed to clear history. Please try again.",
+      };
+      setMessages((prev) => [...prev, errorEntry].slice(-MAX_HISTORY_MESSAGES));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -187,12 +162,9 @@ export default function AIHelper({
 
     const userMessage = input.trim();
     const userEntry: Message = { role: "user", content: userMessage };
-    const nextMessages: Message[] = [
-      ...messages,
-      userEntry,
-    ].slice(-MAX_HISTORY_MESSAGES);
+
     setInput("");
-    setMessages(nextMessages);
+    setMessages((prev) => [...prev, userEntry].slice(-MAX_HISTORY_MESSAGES));
     setLoading(true);
 
     try {
@@ -200,7 +172,7 @@ export default function AIHelper({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: nextMessages,
+          message: userMessage,
           context: { personalityType, career },
         }),
       });
@@ -210,15 +182,22 @@ export default function AIHelper({
         throw new Error(data?.error || "Failed to get AI response.");
       }
 
-      if (typeof data?.response !== "string" || data.response.trim().length === 0) {
+      const nextMessages = parseApiMessages(data?.messages);
+      if (nextMessages.length > 0) {
+        setMessages(nextMessages);
+      } else if (typeof data?.response === "string" && data.response.trim().length > 0) {
+        const assistantEntry: Message = {
+          role: "assistant",
+          content: data.response,
+        };
+        setMessages((prev) => [...prev, assistantEntry].slice(-MAX_HISTORY_MESSAGES));
+      } else {
         throw new Error("Empty AI response. Please try again.");
       }
 
-      const assistantEntry: Message = {
-        role: "assistant",
-        content: data.response,
-      };
-      setMessages((prev) => [...prev, assistantEntry].slice(-MAX_HISTORY_MESSAGES));
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event(HISTORY_SYNC_EVENT));
+      }
     } catch (error) {
       const errorEntry: Message = {
         role: "assistant",

@@ -4,13 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
 import { Menu, User, LogOut } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -42,7 +47,7 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 className={`text-sm font-medium transition-colors ${
-                  pathname === link.href
+                  mounted && pathname === link.href
                     ? "text-accent-purple"
                     : "text-dark-300 hover:text-white"
                 }`}
@@ -84,7 +89,7 @@ export default function Header() {
               </div>
             ) : (
               <Link
-                href="/"
+                href="/login"
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 Sign In
@@ -109,7 +114,7 @@ export default function Header() {
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className={`px-4 py-2 rounded-lg ${
-                    pathname === link.href
+                    mounted && pathname === link.href
                       ? "bg-dark-700 text-accent-purple"
                       : "hover:bg-dark-700"
                   }`}

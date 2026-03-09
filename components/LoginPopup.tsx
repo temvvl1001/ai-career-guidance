@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 
@@ -17,7 +17,36 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProviders = async () => {
+      try {
+        const res = await fetch("/api/auth/providers");
+        if (!res.ok) {
+          if (active) setGoogleAvailable(false);
+          return;
+        }
+
+        const providers = await res.json();
+        if (active) {
+          setGoogleAvailable(Boolean(providers?.google));
+        }
+      } catch {
+        if (active) {
+          setGoogleAvailable(false);
+        }
+      }
+    };
+
+    loadProviders();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,11 +54,6 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
     setLoading(true);
 
     try {
-      const user = {
-    email: "mka@gmail.com",
-    password: "123456"
-  
-      }
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
       const body = isLogin
         ? { email, password }
@@ -56,6 +80,11 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = () => {
+    const callbackUrl = encodeURIComponent("/dashboard");
+    window.location.href = `/api/auth/signin/google?callbackUrl=${callbackUrl}`;
   };
 
   if (!isOpen) return null;
@@ -87,10 +116,14 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           )}
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label
+              htmlFor="popup-email"
+              className="block text-sm font-medium text-dark-300 mb-2"
+            >
               Email
             </label>
             <input
+              id="popup-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -102,10 +135,14 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
 
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label
+                htmlFor="popup-name"
+                className="block text-sm font-medium text-dark-300 mb-2"
+              >
                 Name (optional)
               </label>
               <input
+                id="popup-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -116,17 +153,21 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           )}
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label
+              htmlFor="popup-password"
+              className="block text-sm font-medium text-dark-300 mb-2"
+            >
               Password
             </label>
             <input
+              id="popup-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
               className="w-full px-4 py-3 rounded-lg bg-dark-900 border border-dark-600 focus:border-accent-purple focus:ring-1 focus:ring-accent-purple outline-none transition-colors"
-              placeholder="••••••••"
+              placeholder="********"
             />
           </div>
 
@@ -139,7 +180,22 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           </button>
         </form>
 
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 flex flex-col gap-3">
+          {googleAvailable && (
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              Sign in with Google
+            </button>
+          )}
+          {!googleAvailable && (
+            <p className="text-xs text-dark-400 text-center">
+              Google sign-in is not configured yet.
+            </p>
+          )}
+
           <button
             onClick={() => {
               setIsLogin(!isLogin);
