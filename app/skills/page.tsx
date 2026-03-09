@@ -1,16 +1,11 @@
 "use client";
 
-<<<<<<< HEAD
 import { useCallback, useEffect, useState, Suspense } from "react";
-=======
-import { useEffect, useState, Suspense } from "react";
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 import Header from "@/components/Header";
 import SkillTest from "@/components/SkillTest";
 import AIHelper from "@/components/AIHelper";
 import { getSkillQuestionsForCareer, SkillQuestion } from "@/lib/skill-questions";
 import { useSearchParams } from "next/navigation";
-<<<<<<< HEAD
 
 interface SavedSkillResult {
   score: number;
@@ -38,9 +33,6 @@ const loadSavedSkillResult = (career: string): SavedSkillResult | null => {
     return null;
   }
 };
-=======
-import { useRouter } from "next/navigation";
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 
 function SkillsContent() {
   const searchParams = useSearchParams();
@@ -51,7 +43,6 @@ function SkillsContent() {
   const [mbtiType, setMbtiType] = useState<string | null>(null);
   const [advice, setAdvice] = useState<string | null>(null);
   const [loadingAdvice, setLoadingAdvice] = useState(false);
-<<<<<<< HEAD
   const [skillStateReady, setSkillStateReady] = useState(false);
 
   const persistSkillResult = useCallback(
@@ -104,9 +95,6 @@ function SkillsContent() {
     },
     [career, mbtiType, persistSkillResult]
   );
-=======
-  const router = useRouter();
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 
   useEffect(() => {
     const q = getSkillQuestionsForCareer(career);
@@ -115,7 +103,6 @@ function SkillsContent() {
   }, [career]);
 
   useEffect(() => {
-<<<<<<< HEAD
     setScore(null);
     setAdvice(null);
     setLoadingAdvice(false);
@@ -131,8 +118,6 @@ function SkillsContent() {
   }, [career]);
 
   useEffect(() => {
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
     const fetchMbti = async () => {
       const res = await fetch("/api/mbti/results");
       if (res.ok) {
@@ -145,24 +130,18 @@ function SkillsContent() {
     fetchMbti();
   }, []);
 
-<<<<<<< HEAD
   useEffect(() => {
     if (score === null || advice || loadingAdvice) return;
     void generateAdvice(score);
   }, [score, advice, loadingAdvice, generateAdvice]);
 
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
   const handleComplete = async (
     finalScore: number,
     answers: { questionId: number; answer: number; isCorrect: boolean }[]
   ) => {
     setScore(finalScore);
-<<<<<<< HEAD
     persistSkillResult(finalScore, null);
     setLoadingAdvice(true);
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 
     try {
       await fetch("/api/skills/submit", {
@@ -178,34 +157,10 @@ function SkillsContent() {
       console.error("Failed to save skill results");
     }
 
-<<<<<<< HEAD
     await generateAdvice(finalScore);
   };
 
   if (loading || !skillStateReady || questions.length === 0) {
-=======
-    setLoadingAdvice(true);
-    try {
-      const res = await fetch("/api/ai/advice", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          career,
-          personalityType: mbtiType || "Unknown",
-          skillScore: finalScore,
-        }),
-      });
-      const data = await res.json();
-      setAdvice(data.advice);
-    } catch {
-      setAdvice("Unable to load AI advice. Please try again.");
-    } finally {
-      setLoadingAdvice(false);
-    }
-  };
-
-  if (loading || questions.length === 0) {
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
     return (
       <>
         <Header />
@@ -261,17 +216,12 @@ function SkillsContent() {
             <div className="mt-8 text-center">
               <button
                 onClick={() => {
-<<<<<<< HEAD
                   if (typeof window !== "undefined") {
                     localStorage.removeItem(getSkillResultStorageKey(career));
                   }
                   setScore(null);
                   setAdvice(null);
                   setLoadingAdvice(false);
-=======
-                  setScore(null);
-                  setAdvice(null);
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
                 }}
                 className="px-6 py-3 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors"
               >

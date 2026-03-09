@@ -3,15 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Bot, User } from "lucide-react";
 
-<<<<<<< HEAD
 const MAX_HISTORY_MESSAGES = 50;
 const SHARED_HISTORY_STORAGE_KEY = "ai-helper:history:v2:global";
 const SHARED_OPEN_STATE_KEY = "ai-helper:open:v2:global";
 const LEGACY_HISTORY_PREFIX = "ai-helper:history:v1:";
 const HISTORY_SYNC_EVENT = "ai-helper:history-sync";
 
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -23,7 +20,6 @@ interface AIHelperProps {
   compact?: boolean;
 }
 
-<<<<<<< HEAD
 const isValidMessage = (value: unknown): value is Message => {
   if (!value || typeof value !== "object") return false;
 
@@ -87,28 +83,20 @@ const migrateLegacyHistory = (): Message[] => {
   return migrated;
 };
 
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
 export default function AIHelper({
   personalityType,
   career,
   compact = false,
 }: AIHelperProps) {
-<<<<<<< HEAD
   const historyStorageKey = SHARED_HISTORY_STORAGE_KEY;
   const openStateStorageKey = SHARED_OPEN_STATE_KEY;
 
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-<<<<<<< HEAD
   const [historyReady, setHistoryReady] = useState(false);
   const [openStateReady, setOpenStateReady] = useState(!compact);
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -119,7 +107,6 @@ export default function AIHelper({
     scrollToBottom();
   }, [messages]);
 
-<<<<<<< HEAD
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -195,13 +182,10 @@ export default function AIHelper({
     }
   };
 
-=======
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
     const userMessage = input.trim();
-<<<<<<< HEAD
     const userEntry: Message = { role: "user", content: userMessage };
     const nextMessages: Message[] = [
       ...messages,
@@ -209,10 +193,6 @@ export default function AIHelper({
     ].slice(-MAX_HISTORY_MESSAGES);
     setInput("");
     setMessages(nextMessages);
-=======
-    setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
     setLoading(true);
 
     try {
@@ -220,17 +200,12 @@ export default function AIHelper({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-<<<<<<< HEAD
           messages: nextMessages,
-=======
-          messages: [...messages, { role: "user", content: userMessage }],
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
           context: { personalityType, career },
         }),
       });
 
       const data = await res.json();
-<<<<<<< HEAD
       if (!res.ok) {
         throw new Error(data?.error || "Failed to get AI response.");
       }
@@ -253,30 +228,6 @@ export default function AIHelper({
             : "Something went wrong. Please try again.",
       };
       setMessages((prev) => [...prev, errorEntry].slice(-MAX_HISTORY_MESSAGES));
-=======
-      if (data.response) {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: data.response },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "I'm having trouble connecting. Please try again.",
-          },
-        ]);
-      }
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Something went wrong. Please try again.",
-        },
-      ]);
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
     } finally {
       setLoading(false);
     }
@@ -292,7 +243,6 @@ export default function AIHelper({
                 <Bot className="w-6 h-6 text-accent-purple" />
                 <span className="font-semibold">AI Career Assistant</span>
               </div>
-<<<<<<< HEAD
               <div className="flex items-center gap-2">
                 {messages.length > 0 && (
                   <button
@@ -309,14 +259,6 @@ export default function AIHelper({
                   X
                 </button>
               </div>
-=======
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-dark-400 hover:text-white"
-              >
-                ✕
-              </button>
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 && (
@@ -396,7 +338,6 @@ export default function AIHelper({
 
   return (
     <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
-<<<<<<< HEAD
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Bot className="w-8 h-8 text-accent-purple" />
@@ -410,11 +351,6 @@ export default function AIHelper({
             Clear history
           </button>
         )}
-=======
-      <div className="flex items-center gap-2 mb-4">
-        <Bot className="w-8 h-8 text-accent-purple" />
-        <h3 className="text-lg font-semibold">AI Career Assistant</h3>
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
       </div>
       <p className="text-dark-400 text-sm mb-4">
         Ask questions about your career path, skills, or personality insights.

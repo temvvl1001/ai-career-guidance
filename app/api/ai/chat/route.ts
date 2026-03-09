@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-<<<<<<< HEAD
 import { AssistantContext, chatWithAssistant, ChatMessage } from "@/lib/gemini";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -148,28 +147,12 @@ export async function POST(request: Request) {
     const currentUser = await getCurrentUser();
 
     if (messages.length === 0) {
-=======
-import { getCurrentUser } from "@/lib/auth";
-import { chatWithAssistant } from "@/lib/gemini";
-
-export async function POST(request: Request) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const { messages, context } = await request.json();
-
-    if (!Array.isArray(messages) || messages.length === 0) {
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
       return NextResponse.json(
         { error: "Messages are required" },
         { status: 400 }
       );
     }
 
-<<<<<<< HEAD
     const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content || "career guidance";
 
     if (isGreetingOnly(lastUserMessage)) {
@@ -200,17 +183,6 @@ export async function POST(request: Request) {
         source: "fallback",
       });
     }
-=======
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({
-        response:
-          "I'm your AI Career Assistant! Add GEMINI_API_KEY to your .env file to enable AI responses. For now, I recommend exploring our personality test and career recommendations.",
-      });
-    }
-
-    const response = await chatWithAssistant(messages, context);
-    return NextResponse.json({ response });
->>>>>>> 8da0f92bf37dff5380fe813b327ca2169fa89efd
   } catch (error) {
     console.error("AI chat error:", error);
     return NextResponse.json(
