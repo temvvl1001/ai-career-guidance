@@ -25,11 +25,6 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
     setLoading(true);
 
     try {
-      const user = {
-    email: "mka@gmail.com",
-    password: "123456"
-  
-      }
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
       const body = isLogin
         ? { email, password }
@@ -43,9 +38,7 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Something went wrong");
-      }
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
 
       setUser({ id: data.user.id, email: data.user.email, name: data.user.name });
       onSuccess?.();
@@ -56,6 +49,11 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = () => {
+    const callbackUrl = encodeURIComponent("/dashboard");
+    window.location.href = `/api/auth/signin/google?callbackUrl=${callbackUrl}`;
   };
 
   if (!isOpen) return null;
@@ -87,10 +85,14 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           )}
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label
+              htmlFor="popup-email"
+              className="block text-sm font-medium text-dark-300 mb-2"
+            >
               Email
             </label>
             <input
+              id="popup-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -102,10 +104,14 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
 
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-dark-300 mb-2">
+              <label
+                htmlFor="popup-name"
+                className="block text-sm font-medium text-dark-300 mb-2"
+              >
                 Name (optional)
               </label>
               <input
+                id="popup-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -116,10 +122,14 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           )}
 
           <div>
-            <label className="block text-sm font-medium text-dark-300 mb-2">
+            <label
+              htmlFor="popup-password"
+              className="block text-sm font-medium text-dark-300 mb-2"
+            >
               Password
             </label>
             <input
+              id="popup-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -139,7 +149,17 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
           </button>
         </form>
 
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 flex flex-col gap-3">
+          {/* Google Sign In */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
+          >
+            Sign in with Google
+          </button>
+
+          {/* Toggle Email/Password form */}
           <button
             onClick={() => {
               setIsLogin(!isLogin);
