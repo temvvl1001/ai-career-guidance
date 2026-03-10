@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import { useAuthStore } from "@/store/auth-store";
+import { useUiStore } from "@/store/ui-store";
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,6 +13,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
+  const { language } = useUiStore();
+  const isMn = language === "mn";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +58,18 @@ export default function LoginPage() {
         <div className="w-full max-w-md bg-dark-800 rounded-2xl border border-dark-600 shadow-2xl p-6 space-y-6">
           <div className="text-center space-y-1">
             <h1 className="text-2xl font-semibold">
-              {isLogin ? "Sign in to your account" : "Create your account"}
+              {isLogin
+                ? isMn
+                  ? "Бүртгэлтэй аккаунтаараа нэвтрэх"
+                  : "Sign in to your account"
+                : isMn
+                ? "Шинэ аккаунт үүсгэх"
+                : "Create your account"}
             </h1>
             <p className="text-sm text-dark-400">
-              Access your dashboard, tests, and personalized career insights.
+              {isMn
+                ? "Хяналтын самбар, тестүүд болон AI-д суурилсан зөвлөмжүүддээ нэвтрээрэй."
+                : "Access your dashboard, tests, and personalized career insights."}
             </p>
           </div>
 
@@ -74,7 +85,7 @@ export default function LoginPage() {
                 htmlFor="login-email"
                 className="block text-sm font-medium text-dark-300 mb-2"
               >
-                Email
+                {isMn ? "И-мейл" : "Email"}
               </label>
               <input
                 id="login-email"
@@ -93,7 +104,7 @@ export default function LoginPage() {
                   htmlFor="login-name"
                   className="block text-sm font-medium text-dark-300 mb-2"
                 >
-                  Name (optional)
+                  {isMn ? "Нэр (заавал биш)" : "Name (optional)"}
                 </label>
                 <input
                   id="login-name"
@@ -111,7 +122,7 @@ export default function LoginPage() {
                 htmlFor="login-password"
                 className="block text-sm font-medium text-dark-300 mb-2"
               >
-                Password
+                {isMn ? "Нууц үг" : "Password"}
               </label>
               <input
                 id="login-password"
@@ -130,7 +141,17 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
+              {loading
+                ? isMn
+                  ? "Түр хүлээнэ үү..."
+                  : "Please wait..."
+                : isLogin
+                ? isMn
+                  ? "Нэвтрэх"
+                  : "Sign In"
+                : isMn
+                ? "Бүртгүүлэх"
+                : "Create Account"}
             </button>
           </form>
 
@@ -140,7 +161,13 @@ export default function LoginPage() {
               onClick={handleGoogleSignIn}
               className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
             >
-              Sign in with Google
+              {isLogin
+                ? isMn
+                  ? "Google-ээр нэвтрэх"
+                  : "Sign in with Google"
+                : isMn
+                ? "Google-ээр бүртгүүлэх"
+                : "Sign up with Google"}
             </button>
 
             <button
@@ -151,7 +178,11 @@ export default function LoginPage() {
               className="text-sm text-accent-purple hover:underline text-center"
             >
               {isLogin
-                ? "Don't have an account? Sign up"
+                ? isMn
+                  ? "Бүртгэлгүй юу? Шинэ аккаунт үүсгэх"
+                  : "Don't have an account? Sign up"
+                : isMn
+                ? "Аль хэдийн аккаунттай? Нэвтрэх"
                 : "Already have an account? Sign in"}
             </button>
           </div>

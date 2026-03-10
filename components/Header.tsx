@@ -3,20 +3,34 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
-import { Menu, User, LogOut } from "lucide-react";
-import { useState } from "react";
+import { useUiStore } from "@/store/ui-store";
+import { Menu, User, LogOut, Sun, Moon, Languages } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function Header() {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const { language, theme, toggleLanguage, toggleTheme } = useUiStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [theme]);
+
+  const isMn = language === "mn";
+
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/test", label: "Personality Test" },
-    { href: "/results", label: "Results" },
+    { href: "/", label: isMn ? "Нүүр" : "Home" },
+    { href: "/dashboard", label: isMn ? "Хяналтын самбар" : "Dashboard" },
+    { href: "/test", label: isMn ? "Хувь хүний тест" : "Personality Test" },
+    { href: "/results", label: isMn ? "Үр дүн" : "Results" },
   ];
 
   const handleLogout = async () => {
@@ -32,7 +46,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent">
-              AI Career Guide
+              {isMn ? "AI Мэргэжил Сонголт" : "AI Career Guide"}
             </span>
           </Link>
 
@@ -87,9 +101,29 @@ export default function Header() {
                 href="/login"
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                Sign In
+                {isMn ? "Нэвтрэх" : "Sign In"}
               </Link>
             )}
+
+            <button
+              onClick={toggleLanguage}
+              className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 text-xs text-dark-200"
+            >
+              <Languages className="w-3 h-3" />
+              <span>{isMn ? "MN" : "EN"}</span>
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700"
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-yellow-300" />
+              ) : (
+                <Moon className="w-4 h-4 text-blue-300" />
+              )}
+            </button>
 
             <button
               className="md:hidden p-2 rounded-lg hover:bg-dark-700"

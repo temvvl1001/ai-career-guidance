@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
+import { useUiStore } from "@/store/ui-store";
 
 interface LoginPopupProps {
   isOpen: boolean;
@@ -18,6 +19,8 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
+  const { language } = useUiStore();
+  const isMn = language === "mn";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +70,13 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
       <div className="relative w-full max-w-md bg-dark-800 rounded-2xl border border-dark-600 shadow-2xl animate-slide-up">
         <div className="flex items-center justify-between p-6 border-b border-dark-600">
           <h2 className="text-xl font-semibold">
-            {isLogin ? "Welcome Back" : "Create Account"}
+            {isLogin
+              ? isMn
+                ? "Дахин тавтай морил"
+                : "Welcome Back"
+              : isMn
+              ? "Шинэ аккаунт үүсгэх"
+              : "Create Account"}
           </h2>
           <button
             onClick={onClose}
@@ -89,7 +98,7 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
               htmlFor="popup-email"
               className="block text-sm font-medium text-dark-300 mb-2"
             >
-              Email
+              {isMn ? "И-мейл" : "Email"}
             </label>
             <input
               id="popup-email"
@@ -108,7 +117,7 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
                 htmlFor="popup-name"
                 className="block text-sm font-medium text-dark-300 mb-2"
               >
-                Name (optional)
+                {isMn ? "Нэр (заавал биш)" : "Name (optional)"}
               </label>
               <input
                 id="popup-name"
@@ -126,7 +135,7 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
               htmlFor="popup-password"
               className="block text-sm font-medium text-dark-300 mb-2"
             >
-              Password
+              {isMn ? "Нууц үг" : "Password"}
             </label>
             <input
               id="popup-password"
@@ -145,7 +154,17 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
             disabled={loading}
             className="w-full py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
+            {loading
+              ? isMn
+                ? "Түр хүлээнэ үү..."
+                : "Please wait..."
+              : isLogin
+              ? isMn
+                ? "Нэвтрэх"
+                : "Sign In"
+              : isMn
+              ? "Бүртгүүлэх"
+              : "Create Account"}
           </button>
         </form>
 
@@ -156,7 +175,13 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
             onClick={handleGoogleSignIn}
             className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
           >
-            Sign in with Google
+            {isLogin
+              ? isMn
+                ? "Google-ээр нэвтрэх"
+                : "Sign in with Google"
+              : isMn
+              ? "Google-ээр бүртгүүлэх"
+              : "Sign up with Google"}
           </button>
 
           {/* Toggle Email/Password form */}
@@ -168,7 +193,11 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
             className="text-sm text-accent-purple hover:underline"
           >
             {isLogin
-              ? "Don't have an account? Sign up"
+              ? isMn
+                ? "Бүртгэлгүй юу? Шинэ аккаунт үүсгэх"
+                : "Don't have an account? Sign up"
+              : isMn
+              ? "Аль хэдийн аккаунттай? Нэвтрэх"
               : "Already have an account? Sign in"}
           </button>
         </div>
