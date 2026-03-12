@@ -214,9 +214,9 @@ export default function AIHelper({
 
   if (compact) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60]">
         {isOpen ? (
-          <div className="w-96 h-[500px] rounded-2xl bg-dark-800 border border-dark-600 shadow-2xl flex flex-col overflow-hidden">
+          <div className="w-[min(24rem,calc(100vw-2rem))] h-[min(500px,calc(100vh-8rem))] rounded-2xl bg-dark-800 border border-dark-600 shadow-2xl flex flex-col overflow-hidden">
             <div className="p-4 border-b border-dark-600 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Bot className="w-6 h-6 text-accent-purple" />

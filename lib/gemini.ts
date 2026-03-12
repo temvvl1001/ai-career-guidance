@@ -143,8 +143,24 @@ export async function generateCareerAdvice(params: {
   career: string;
   personalityType: string;
   skillScore: number;
+  detailLevel?: "short" | "full";
 }): Promise<string> {
-  const prompt = `You are a career guidance expert. Provide personalized advice for the following:
+  const isShort = params.detailLevel === "short";
+  const prompt = isShort
+    ? `You are a career coach. Provide a very short, practical analysis.
+
+User wants to become: ${params.career}
+Personality type (MBTI): ${params.personalityType}
+Skill test score: ${params.skillScore}%
+
+Return at most 4 bullet points. Each bullet <= 18 words. Total <= 80 words.
+Include:
+- 1 sentence assessment + encouragement
+- Top 2-3 skills to focus
+- One next action for this week
+- One resource type (course/project/mentor)
+Use markdown bullets only. No headings.`
+    : `You are a career guidance expert. Provide personalized advice for the following:
 
 User wants to become: ${params.career}
 Personality type (MBTI): ${params.personalityType}

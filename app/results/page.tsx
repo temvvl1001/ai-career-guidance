@@ -5,7 +5,6 @@ import Header from "@/components/Header";
 import CareerCard from "@/components/CareerCard";
 import CareerComparison from "@/components/CareerComparison";
 import ResultGraph from "@/components/ResultGraph";
-import AIHelper from "@/components/AIHelper";
 import { getCareersForMBTI, Career } from "@/lib/career-data";
 import { getPersonalityDescription } from "@/lib/mbti-questions";
 import { MBTIScores } from "@/lib/mbti-questions";
@@ -70,45 +69,38 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              <ResultGraph
-                mbtiType={mbtiType}
-                scores={scores}
-                strengths={strengths}
-                weaknesses={weaknesses}
-              />
-
-              <div>
-                <h2 className="text-2xl font-semibold mb-6">
-                  Recommended Careers for {mbtiType}
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-6 mb-8">
-                  {careers.map((career) => (
-                    <CareerCard
-                      key={career.id}
-                      career={career}
-                      showSkillTest
-                    />
-                  ))}
-                </div>
-                {careers.length >= 2 && (
-                  <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
-                    <h3 className="text-lg font-semibold mb-4">Career Comparison</h3>
-                    <CareerComparison careers={careers.slice(0, 4)} />
-                  </div>
-                )}
-              </div>
-            </div>
+          <div className="space-y-8">
+            <ResultGraph
+              mbtiType={mbtiType}
+              scores={scores}
+              strengths={strengths}
+              weaknesses={weaknesses}
+            />
 
             <div>
-              <AIHelper personalityType={mbtiType} compact={false} />
+              <h2 className="text-2xl font-semibold mb-6">
+                Recommended Careers for {mbtiType}
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-6 mb-8">
+                {careers.map((career) => (
+                  <CareerCard
+                    key={career.id}
+                    career={career}
+                    showSkillTest
+                  />
+                ))}
+              </div>
+              {careers.length >= 2 && (
+                <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
+                  <h3 className="text-lg font-semibold mb-4">Career Comparison</h3>
+                  <CareerComparison careers={careers.slice(0, 4)} />
+                </div>
+              )}
             </div>
           </div>
         </div>
       </main>
 
-      <AIHelper personalityType={mbtiType} compact />
     </>
   );
 }
