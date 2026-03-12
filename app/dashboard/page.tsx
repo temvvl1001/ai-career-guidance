@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import CareerCard from "@/components/CareerCard";
-import AIHelper from "@/components/AIHelper";
 import { useAuthStore } from "@/store/auth-store";
 import { TOP_CAREERS, getCareersForMBTI } from "@/lib/career-data";
-import { Brain, Target, MessageCircle, ChevronRight } from "lucide-react";
+import { Brain, Target, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -76,72 +75,53 @@ export default function DashboardPage() {
             Continue your career discovery journey
           </p>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-              {/* Start Personality Test */}
-              <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 hover:border-accent-purple/50 transition-all">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-accent-purple/20 flex items-center justify-center">
-                      <Brain className="w-7 h-7 text-accent-purple" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold">Personality Test</h2>
-                      <p className="text-dark-400 text-sm">
-                        {mbtiType
-                          ? `Your type: ${mbtiType} - Retake to update`
-                          : "Discover your MBTI personality type"}
-                      </p>
-                    </div>
+          <div className="space-y-8">
+            {/* Start Personality Test */}
+            <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 hover:border-accent-purple/50 transition-all">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-accent-purple/20 flex items-center justify-center">
+                    <Brain className="w-7 h-7 text-accent-purple" />
                   </div>
-                  <Link
-                    href="/test"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-purple/20 text-accent-purple font-medium hover:bg-accent-purple/30 transition-colors"
-                  >
-                    {mbtiType ? "Retake" : "Start"}
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
+                  <div>
+                    <h2 className="text-xl font-semibold">Personality Test</h2>
+                    <p className="text-dark-400 text-sm">
+                      {mbtiType
+                        ? `Your type: ${mbtiType} - Retake to update`
+                        : "Discover your MBTI personality type"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-
-              {/* Explore Top Careers */}
-              <div>
-                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5 text-accent-blue" />
-                  {mbtiType ? "Recommended for You" : "Explore Top Careers"}
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {recommendedCareers.slice(0, 4).map((career) => (
-                    <CareerCard
-                      key={career.id}
-                      career={career}
-                      showSkillTest={!!mbtiType}
-                    />
-                  ))}
-                </div>
+                <Link
+                  href="/test"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-purple/20 text-accent-purple font-medium hover:bg-accent-purple/30 transition-colors"
+                >
+                  {mbtiType ? "Retake" : "Start"}
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
               </div>
             </div>
 
-            {/* AI Assistant */}
+            {/* Explore Top Careers */}
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <MessageCircle className="w-5 h-5 text-accent-emerald" />
-                AI Career Assistant
+                <Target className="w-5 h-5 text-accent-blue" />
+                {mbtiType ? "Recommended for You" : "Explore Top Careers"}
               </h2>
-              <AIHelper
-                personalityType={mbtiType || undefined}
-                career={recommendedCareers[0]?.name}
-              />
+              <div className="grid sm:grid-cols-2 gap-4">
+                {recommendedCareers.slice(0, 4).map((career) => (
+                  <CareerCard
+                    key={career.id}
+                    career={career}
+                    showSkillTest={!!mbtiType}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </main>
 
-      <AIHelper
-        personalityType={mbtiType || undefined}
-        career={recommendedCareers[0]?.name}
-        compact
-      />
     </>
   );
 }

@@ -31,9 +31,11 @@ export default function CareerComparison({ careers }: CareerComparisonProps) {
           <tr className="border-b border-dark-700">
             <td className="p-4 text-dark-400">Salary</td>
             {careers.map((c) => (
-              <td key={c.id} className="p-4 flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-accent-emerald" />
-                {c.salary}
+              <td key={c.id} className="p-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-accent-emerald" />
+                  <span>{c.salary}</span>
+                </div>
               </td>
             ))}
           </tr>
