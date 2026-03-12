@@ -4,18 +4,18 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function Navbar() {
-  const [lang, setLang] = useState("en");
-
   const text = {
     en: {
       dashboard: "Dashboard",
-      login: "Login"
+      login: "Login",
     },
     mn: {
       dashboard: "Хянах самбар",
-      login: "Нэвтрэх"
-    }
-  };
+      login: "Нэвтрэх",
+    },
+  } as const;
+
+  const [lang, setLang] = useState<keyof typeof text>("en");
 
   return (
     <nav className="w-full flex items-center justify-between px-6 py-3 border-b bg-white/80 backdrop-blur">

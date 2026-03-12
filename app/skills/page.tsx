@@ -1,12 +1,38 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import Header from "@/components/Header";
 import SkillTest from "@/components/SkillTest";
 import AIHelper from "@/components/AIHelper";
 import { getSkillQuestionsForCareer, SkillQuestion } from "@/lib/skill-questions";
 import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+
+interface SavedSkillResult {
+  score: number;
+  advice: string | null;
+}
+
+const getSkillResultStorageKey = (career: string) =>
+  `skill-result:v1:${encodeURIComponent(career)}`;
+
+const loadSavedSkillResult = (career: string): SavedSkillResult | null => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = localStorage.getItem(getSkillResultStorageKey(career));
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<SavedSkillResult>;
+    if (typeof parsed.score !== "number") return null;
+
+    return {
+      score: parsed.score,
+      advice: typeof parsed.advice === "string" ? parsed.advice : null,
+    };
+  } catch {
+    return null;
+  }
+};
 
 function SkillsContent() {
   const searchParams = useSearchParams();
@@ -17,12 +43,78 @@ function SkillsContent() {
   const [mbtiType, setMbtiType] = useState<string | null>(null);
   const [advice, setAdvice] = useState<string | null>(null);
   const [loadingAdvice, setLoadingAdvice] = useState(false);
-  const router = useRouter();
+  const [skillStateReady, setSkillStateReady] = useState(false);
+
+  const persistSkillResult = useCallback(
+    (finalScore: number, roadmap: string | null) => {
+      if (typeof window === "undefined") return;
+
+      const payload: SavedSkillResult = {
+        score: finalScore,
+        advice: roadmap,
+      };
+
+      localStorage.setItem(
+        getSkillResultStorageKey(career),
+        JSON.stringify(payload)
+      );
+    },
+    [career]
+  );
+
+  const generateAdvice = useCallback(
+    async (finalScore: number) => {
+      setLoadingAdvice(true);
+
+      try {
+        const res = await fetch("/api/ai/advice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            career,
+            personalityType: mbtiType || "Unknown",
+            skillScore: finalScore,
+          }),
+        });
+
+        const data = await res.json();
+        const nextAdvice =
+          typeof data?.advice === "string"
+            ? data.advice
+            : "Unable to load AI advice. Please try again.";
+
+        setAdvice(nextAdvice);
+        persistSkillResult(finalScore, nextAdvice);
+      } catch {
+        const fallbackAdvice = "Unable to load AI advice. Please try again.";
+        setAdvice(fallbackAdvice);
+        persistSkillResult(finalScore, fallbackAdvice);
+      } finally {
+        setLoadingAdvice(false);
+      }
+    },
+    [career, mbtiType, persistSkillResult]
+  );
 
   useEffect(() => {
     const q = getSkillQuestionsForCareer(career);
     setQuestions(q);
     setLoading(false);
+  }, [career]);
+
+  useEffect(() => {
+    setScore(null);
+    setAdvice(null);
+    setLoadingAdvice(false);
+    setSkillStateReady(false);
+
+    const saved = loadSavedSkillResult(career);
+    if (saved) {
+      setScore(saved.score);
+      setAdvice(saved.advice);
+    }
+
+    setSkillStateReady(true);
   }, [career]);
 
   useEffect(() => {
@@ -38,11 +130,18 @@ function SkillsContent() {
     fetchMbti();
   }, []);
 
+  useEffect(() => {
+    if (score === null || advice || loadingAdvice) return;
+    void generateAdvice(score);
+  }, [score, advice, loadingAdvice, generateAdvice]);
+
   const handleComplete = async (
     finalScore: number,
     answers: { questionId: number; answer: number; isCorrect: boolean }[]
   ) => {
     setScore(finalScore);
+    persistSkillResult(finalScore, null);
+    setLoadingAdvice(true);
 
     try {
       await fetch("/api/skills/submit", {
@@ -58,27 +157,10 @@ function SkillsContent() {
       console.error("Failed to save skill results");
     }
 
-    setLoadingAdvice(true);
-    try {
-      const res = await fetch("/api/ai/advice", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          career,
-          personalityType: mbtiType || "Unknown",
-          skillScore: finalScore,
-        }),
-      });
-      const data = await res.json();
-      setAdvice(data.advice);
-    } catch {
-      setAdvice("Unable to load AI advice. Please try again.");
-    } finally {
-      setLoadingAdvice(false);
-    }
+    await generateAdvice(finalScore);
   };
 
-  if (loading || questions.length === 0) {
+  if (loading || !skillStateReady || questions.length === 0) {
     return (
       <>
         <Header />
@@ -134,8 +216,12 @@ function SkillsContent() {
             <div className="mt-8 text-center">
               <button
                 onClick={() => {
+                  if (typeof window !== "undefined") {
+                    localStorage.removeItem(getSkillResultStorageKey(career));
+                  }
                   setScore(null);
                   setAdvice(null);
+                  setLoadingAdvice(false);
                 }}
                 className="px-6 py-3 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors"
               >

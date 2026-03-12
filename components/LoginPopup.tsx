@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { useUiStore } from "@/store/ui-store";
@@ -18,9 +18,38 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
   const { language } = useUiStore();
   const isMn = language === "mn";
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProviders = async () => {
+      try {
+        const res = await fetch("/api/auth/providers");
+        if (!res.ok) {
+          if (active) setGoogleAvailable(false);
+          return;
+        }
+
+        const providers = await res.json();
+        if (active) {
+          setGoogleAvailable(Boolean(providers?.google));
+        }
+      } catch {
+        if (active) {
+          setGoogleAvailable(false);
+        }
+      }
+    };
+
+    loadProviders();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +70,9 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
 
       setUser({ id: data.user.id, email: data.user.email, name: data.user.name });
       onSuccess?.();
@@ -145,7 +176,7 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
               required
               minLength={6}
               className="w-full px-4 py-3 rounded-lg bg-dark-900 border border-dark-600 focus:border-accent-purple focus:ring-1 focus:ring-accent-purple outline-none transition-colors"
-              placeholder="••••••••"
+              placeholder="********"
             />
           </div>
 
@@ -169,22 +200,29 @@ export default function LoginPopup({ isOpen, onClose, onSuccess }: LoginPopupPro
         </form>
 
         <div className="px-6 pb-6 flex flex-col gap-3">
-          {/* Google Sign In */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
-          >
-            {isLogin
-              ? isMn
-                ? "Google-ээр нэвтрэх"
-                : "Sign in with Google"
-              : isMn
-              ? "Google-ээр бүртгүүлэх"
-              : "Sign up with Google"}
-          </button>
+          {googleAvailable && (
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
+            >
+              {isLogin
+                ? isMn
+                  ? "Google-ээр нэвтрэх"
+                  : "Sign in with Google"
+                : isMn
+                ? "Google-ээр бүртгүүлэх"
+                : "Sign up with Google"}
+            </button>
+          )}
+          {!googleAvailable && (
+            <p className="text-xs text-dark-400 text-center">
+              {isMn
+                ? "Google-ээр нэвтрэх тохиргоо хийгдээгүй байна."
+                : "Google sign-in is not configured yet."}
+            </p>
+          )}
 
-          {/* Toggle Email/Password form */}
           <button
             onClick={() => {
               setIsLogin(!isLogin);

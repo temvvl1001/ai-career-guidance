@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { useAuthStore } from "@/store/auth-store";
 import { useUiStore } from "@/store/ui-store";
@@ -12,9 +12,38 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleAvailable, setGoogleAvailable] = useState(false);
   const setUser = useAuthStore((s) => s.setUser);
   const { language } = useUiStore();
   const isMn = language === "mn";
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProviders = async () => {
+      try {
+        const res = await fetch("/api/auth/providers");
+        if (!res.ok) {
+          if (active) setGoogleAvailable(false);
+          return;
+        }
+
+        const providers = await res.json();
+        if (active) {
+          setGoogleAvailable(Boolean(providers?.google));
+        }
+      } catch {
+        if (active) {
+          setGoogleAvailable(false);
+        }
+      }
+    };
+
+    loadProviders();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,19 +185,28 @@ export default function LoginPage() {
           </form>
 
           <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
-            >
-              {isLogin
-                ? isMn
-                  ? "Google-ээр нэвтрэх"
-                  : "Sign in with Google"
-                : isMn
-                ? "Google-ээр бүртгүүлэх"
-                : "Sign up with Google"}
-            </button>
+            {googleAvailable && (
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="w-full py-3 rounded-lg bg-red-600 text-white font-medium hover:opacity-90 transition-opacity"
+              >
+                {isLogin
+                  ? isMn
+                    ? "Google-ээр нэвтрэх"
+                    : "Sign in with Google"
+                  : isMn
+                  ? "Google-ээр бүртгүүлэх"
+                  : "Sign up with Google"}
+              </button>
+            )}
+            {!googleAvailable && (
+              <p className="text-xs text-dark-400 text-center">
+                {isMn
+                  ? "Google-ээр нэвтрэх тохиргоо хийгдээгүй байна."
+                  : "Google sign-in is not configured yet."}
+              </p>
+            )}
 
             <button
               onClick={() => {

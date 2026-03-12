@@ -13,6 +13,11 @@ export default function Header() {
   const { language, theme, toggleLanguage, toggleTheme } = useUiStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -56,7 +61,7 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 className={`text-sm font-medium transition-colors ${
-                  pathname === link.href
+                  mounted && pathname === link.href
                     ? "text-accent-purple"
                     : "text-dark-300 hover:text-white"
                 }`}
@@ -143,7 +148,7 @@ export default function Header() {
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className={`px-4 py-2 rounded-lg ${
-                    pathname === link.href
+                    mounted && pathname === link.href
                       ? "bg-dark-700 text-accent-purple"
                       : "hover:bg-dark-700"
                   }`}

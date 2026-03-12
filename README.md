@@ -59,7 +59,7 @@ A modern full-stack web application that helps users discover the best career fo
   /test             # MBTI personality test
   /skills           # Career skill tests
   /results          # Test results & recommendations
-  /profile          # User profile (grey dark theme)
+  /          # User profile (grey dark theme)
 
 /components
   Header, LoginPopup, CareerCard

@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Bot, User } from "lucide-react";
+
+const MAX_HISTORY_MESSAGES = 50;
+const SHARED_OPEN_STATE_KEY = "ai-helper:open:v3:global";
+const HISTORY_SYNC_EVENT = "ai-helper:history-sync";
 
 interface Message {
   role: "user" | "assistant";
@@ -14,31 +18,153 @@ interface AIHelperProps {
   compact?: boolean;
 }
 
+const isValidMessage = (value: unknown): value is Message => {
+  if (!value || typeof value !== "object") return false;
+
+  const candidate = value as Partial<Message>;
+  return (
+    (candidate.role === "user" || candidate.role === "assistant") &&
+    typeof candidate.content === "string" &&
+    candidate.content.trim().length > 0
+  );
+};
+
+const parseApiMessages = (raw: unknown): Message[] => {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(isValidMessage)
+    .map((message) => ({
+      role: message.role,
+      content: message.content.trim(),
+    }))
+    .slice(-MAX_HISTORY_MESSAGES);
+};
+
+const areMessagesEqual = (left: Message[], right: Message[]) => {
+  if (left.length !== right.length) return false;
+
+  for (let i = 0; i < left.length; i += 1) {
+    if (
+      left[i].role !== right[i].role ||
+      left[i].content !== right[i].content
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export default function AIHelper({
   personalityType,
   career,
   compact = false,
 }: AIHelperProps) {
+  const openStateStorageKey = SHARED_OPEN_STATE_KEY;
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [openStateReady, setOpenStateReady] = useState(!compact);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const loadHistory = useCallback(async () => {
+    try {
+      const res = await fetch("/api/ai/chat", { method: "GET" });
+      if (!res.ok) {
+        if (res.status === 401) {
+          setMessages([]);
+        }
+        return;
+      }
+
+      const data = await res.json();
+      const nextMessages = parseApiMessages(data?.messages);
+      setMessages((prev) => (areMessagesEqual(prev, nextMessages) ? prev : nextMessages));
+    } catch {
+      // keep current state if sync fails
+    }
+  }, []);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    void loadHistory();
+
+    if (typeof window === "undefined") return;
+    const onSync = () => {
+      void loadHistory();
+    };
+
+    window.addEventListener(HISTORY_SYNC_EVENT, onSync);
+    return () => {
+      window.removeEventListener(HISTORY_SYNC_EVENT, onSync);
+    };
+  }, [loadHistory]);
+
+  useEffect(() => {
+    if (!compact || typeof window === "undefined") return;
+
+    setOpenStateReady(false);
+    try {
+      setIsOpen(localStorage.getItem(openStateStorageKey) === "1");
+    } catch {
+      setIsOpen(false);
+    } finally {
+      setOpenStateReady(true);
+    }
+  }, [compact, openStateStorageKey]);
+
+  useEffect(() => {
+    if (!compact || !openStateReady || typeof window === "undefined") return;
+    localStorage.setItem(openStateStorageKey, isOpen ? "1" : "0");
+  }, [compact, isOpen, openStateStorageKey, openStateReady]);
+
+  const clearHistory = async () => {
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/ai/chat", { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to clear history");
+      }
+
+      setMessages([]);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event(HISTORY_SYNC_EVENT));
+      }
+    } catch (error) {
+      const errorEntry: Message = {
+        role: "assistant",
+        content:
+          error instanceof Error
+            ? error.message
+            : "Failed to clear history. Please try again.",
+      };
+      setMessages((prev) => [...prev, errorEntry].slice(-MAX_HISTORY_MESSAGES));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
     const userMessage = input.trim();
+    const userEntry: Message = { role: "user", content: userMessage };
+
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+    setMessages((prev) => [...prev, userEntry].slice(-MAX_HISTORY_MESSAGES));
     setLoading(true);
 
     try {
@@ -46,34 +172,41 @@ export default function AIHelper({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages, { role: "user", content: userMessage }],
+          message: userMessage,
           context: { personalityType, career },
         }),
       });
 
       const data = await res.json();
-      if (data.response) {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: data.response },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "I'm having trouble connecting. Please try again.",
-          },
-        ]);
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to get AI response.");
       }
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
+
+      const nextMessages = parseApiMessages(data?.messages);
+      if (nextMessages.length > 0) {
+        setMessages(nextMessages);
+      } else if (typeof data?.response === "string" && data.response.trim().length > 0) {
+        const assistantEntry: Message = {
           role: "assistant",
-          content: "Something went wrong. Please try again.",
-        },
-      ]);
+          content: data.response,
+        };
+        setMessages((prev) => [...prev, assistantEntry].slice(-MAX_HISTORY_MESSAGES));
+      } else {
+        throw new Error("Empty AI response. Please try again.");
+      }
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event(HISTORY_SYNC_EVENT));
+      }
+    } catch (error) {
+      const errorEntry: Message = {
+        role: "assistant",
+        content:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+      };
+      setMessages((prev) => [...prev, errorEntry].slice(-MAX_HISTORY_MESSAGES));
     } finally {
       setLoading(false);
     }
@@ -89,12 +222,22 @@ export default function AIHelper({
                 <Bot className="w-6 h-6 text-accent-purple" />
                 <span className="font-semibold">AI Career Assistant</span>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-dark-400 hover:text-white"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                {messages.length > 0 && (
+                  <button
+                    onClick={clearHistory}
+                    className="text-xs text-dark-300 hover:text-white"
+                  >
+                    Clear
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-dark-400 hover:text-white"
+                >
+                  X
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 && (
@@ -174,9 +317,19 @@ export default function AIHelper({
 
   return (
     <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
-      <div className="flex items-center gap-2 mb-4">
-        <Bot className="w-8 h-8 text-accent-purple" />
-        <h3 className="text-lg font-semibold">AI Career Assistant</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Bot className="w-8 h-8 text-accent-purple" />
+          <h3 className="text-lg font-semibold">AI Career Assistant</h3>
+        </div>
+        {messages.length > 0 && (
+          <button
+            onClick={clearHistory}
+            className="text-xs text-dark-300 hover:text-white"
+          >
+            Clear history
+          </button>
+        )}
       </div>
       <p className="text-dark-400 text-sm mb-4">
         Ask questions about your career path, skills, or personality insights.
