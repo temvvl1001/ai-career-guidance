@@ -2,6 +2,7 @@ import { GoogleGenAI, type Content } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+// Ашиглаж болох загваруудын жагсаалт (env + fallback).
 const MODEL_CANDIDATES = [
   process.env.GEMINI_MODEL?.trim(),
   ...(process.env.GEMINI_MODELS || "")
@@ -14,16 +15,19 @@ const MODEL_CANDIDATES = [
   "gemini-3-flash-preview",
 ].filter(Boolean) as string[];
 
+// Загварын жагсаалтыг давхардалгүй болгож буцаана.
 function getCandidateModels(): string[] {
   return [...new Set(MODEL_CANDIDATES)];
 }
 
+// Алдаанаас HTTP status-г задлан авах.
 function parseErrorStatus(error: unknown): number {
   if (!error || typeof error !== "object") return 0;
   const candidate = error as { status?: unknown };
   return typeof candidate.status === "number" ? candidate.status : 0;
 }
 
+// Алдааны мессежийг задлан авах (нэмэлт JSON мессежтэй үед).
 function parseErrorMessage(error: unknown): string {
   if (!error || typeof error !== "object") return "";
 
@@ -38,12 +42,13 @@ function parseErrorMessage(error: unknown): string {
       return nested.toLowerCase();
     }
   } catch {
-    // Use raw message when parsing fails.
+    // JSON задлал бүтэлгүйтвэл шууд мессежийг ашиглана.
   }
 
   return raw.toLowerCase();
 }
 
+// API key/эрхгүй холбоотой алдаа мөн эсэх.
 function isAuthError(error: unknown): boolean {
   const status = parseErrorStatus(error);
   const message = parseErrorMessage(error);
@@ -57,6 +62,7 @@ function isAuthError(error: unknown): boolean {
   );
 }
 
+// Дахин оролдох эсвэл өөр загвар руу шилжих хэрэгтэй алдаа эсэх.
 function isRetryableOrModelFallbackError(error: unknown): boolean {
   const status = parseErrorStatus(error);
   const message = parseErrorMessage(error);
@@ -77,10 +83,12 @@ function isRetryableOrModelFallbackError(error: unknown): boolean {
   );
 }
 
+// Богино хугацаанд хүлээлт хийх helper.
 async function wait(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Gemini response-оос текстийг аюулгүйгээр гаргаж авах.
 function extractText(response: { text?: string; candidates?: { content?: { parts?: { text?: string }[] } }[] }): string {
   const directText = response.text?.trim();
   if (directText) return directText;
@@ -90,6 +98,7 @@ function extractText(response: { text?: string; candidates?: { content?: { parts
   return fallbackText || "I could not generate a response. Please try again.";
 }
 
+// Загвар fallback + retry механизмыг нэг дор хэрэгжүүлнэ.
 async function runWithModelFallback<T>(task: (modelName: string) => Promise<T>): Promise<T> {
   const models = getCandidateModels();
   let lastError: unknown;
@@ -139,6 +148,7 @@ export interface ChatMessage {
   content: string;
 }
 
+// MBTI + карьер + оноонд тулгуурлан AI зөвлөгөө үүсгэнэ.
 export async function generateCareerAdvice(params: {
   career: string;
   personalityType: string;
@@ -183,6 +193,7 @@ Keep the response concise but actionable. Use markdown formatting for readabilit
   });
 }
 
+// Чат түүх, контексттэй нь AI-тай харилцах.
 export async function chatWithAssistant(
   messages: ChatMessage[],
   context?: AssistantContext

@@ -7,9 +7,14 @@ import Link from "next/link";
 interface CareerCardProps {
   career: Career;
   showSkillTest?: boolean;
+  matchScore?: number;
 }
 
-export default function CareerCard({ career, showSkillTest = false }: CareerCardProps) {
+export default function CareerCard({
+  career,
+  showSkillTest = false,
+  matchScore,
+}: CareerCardProps) {
   const demandColor =
     career.demandLevel === "High"
       ? "text-emerald-400"
@@ -37,6 +42,12 @@ export default function CareerCard({ career, showSkillTest = false }: CareerCard
         <DollarSign className="w-4 h-4 text-accent-emerald" />
         <span>{career.salary}</span>
       </div>
+
+      {typeof matchScore === "number" && (
+        <div className="mb-4 text-sm font-semibold text-accent-purple">
+          Match Score: {Math.round(matchScore)}%
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2 mb-4">
         {career.requiredSkills.slice(0, 3).map((skill) => (

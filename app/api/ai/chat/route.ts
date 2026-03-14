@@ -25,6 +25,7 @@ type DbMessageRow = {
 
 let ensureHistoryTablePromise: Promise<void> | null = null;
 
+// Клиентээс ирсэн messages массивыг цэвэрлэж, урт/тоо хэмжээний хязгаар тавина.
 function sanitizeMessages(raw: unknown): ChatMessage[] {
   if (!Array.isArray(raw)) return [];
 
@@ -45,6 +46,7 @@ function sanitizeMessages(raw: unknown): ChatMessage[] {
     .slice(-MAX_PROMPT_MESSAGES);
 }
 
+// Нэг мессежийг шалгаж, trim хийж, уртыг хязгаарлаж буцаана.
 function sanitizeSingleMessage(raw: unknown): string | null {
   if (typeof raw !== "string") return null;
 
@@ -56,6 +58,7 @@ function sanitizeSingleMessage(raw: unknown): string | null {
     : trimmed;
 }
 
+// Request body-оос хэрэглэгчийн сүүлийн мессежийг олж авна (хуучин формат дэмжинэ).
 function getUserMessageFromBody(body: unknown): string | null {
   if (!body || typeof body !== "object") return null;
   const payload = body as { message?: unknown; messages?: unknown };
@@ -71,6 +74,7 @@ function getUserMessageFromBody(body: unknown): string | null {
   return sanitizeSingleMessage(lastUserMessage ?? null);
 }
 
+// AI-д дамжуулах контекстийг шүүн, утгын уртыг хязгаарлана.
 function sanitizeContext(raw: unknown): AssistantContext | undefined {
   if (!raw || typeof raw !== "object") return undefined;
 
@@ -85,6 +89,7 @@ function sanitizeContext(raw: unknown): AssistantContext | undefined {
   };
 }
 
+// Мэндчилгээ танихын тулд текстийг normalize хийнэ (үсэг/тоон бус тэмдэг арилгана).
 function normalizeMessage(input: string): string {
   return input
     .toLowerCase()
@@ -93,6 +98,7 @@ function normalizeMessage(input: string): string {
     .trim();
 }
 
+// Мессеж зөвхөн мэндчилгээ эсэхийг шалгана.
 function isGreetingOnly(input: string): boolean {
   const normalized = normalizeMessage(input);
   if (!normalized) return false;
@@ -111,6 +117,7 @@ function isGreetingOnly(input: string): boolean {
   return false;
 }
 
+// Нэрийг уншихад амар болгохын тулд үг бүрийн эхний үсгийг том болгоно.
 function titleCase(input: string): string {
   return input
     .split(" ")
@@ -119,6 +126,7 @@ function titleCase(input: string): string {
     .join(" ");
 }
 
+// Email-ийн local хэсгээс дэлгэцэнд харуулах нэр үүсгэнэ.
 function getDisplayNameFromEmail(email?: string): string | undefined {
   if (!email) return undefined;
 
@@ -128,6 +136,7 @@ function getDisplayNameFromEmail(email?: string): string | undefined {
   return titleCase(localPart.replace(/[._-]+/g, " "));
 }
 
+// DB-аас нэр олж, байхгүй бол email-оос нэр гаргана.
 async function getGreetingName(user?: { userId: string; email: string } | null): Promise<string | undefined> {
   if (!user) return undefined;
 
@@ -146,6 +155,7 @@ async function getGreetingName(user?: { userId: string; email: string } | null):
   }
 }
 
+// Монгол хэлтэй эсэхийг таньж мэндчилгээг Монгол/Англи болгоно.
 function shouldUseMongolianGreeting(input: string): boolean {
   if (/[А-Яа-яӨөҮүЁё]/.test(input)) return true;
 
@@ -167,6 +177,7 @@ function shouldUseMongolianGreeting(input: string): boolean {
   return tokens[0] === "sain" || tokens[0] === "mend";
 }
 
+// Мэндчилгээний богино, ойлгомжтой хариуг үүсгэнэ.
 function buildGreetingResponse(
   userMessage: string,
   context?: AssistantContext,
@@ -187,6 +198,7 @@ function buildGreetingResponse(
   return `${greeting} I am your AI Career Assistant. What would you like to ask ${topic}?`;
 }
 
+// AI ажиллахгүй үед fallback зөвлөгөө бэлдэнэ.
 function buildFallbackResponse(message: string, context?: AssistantContext): string {
   const topic = context?.career ? `${context.career} career` : "career path";
   const personality = context?.personalityType
@@ -204,10 +216,12 @@ function buildFallbackResponse(message: string, context?: AssistantContext): str
   ].join("\n");
 }
 
+// DB-д хадгалагдсан role-ийг "user"/"assistant" болгож хэвийн болгоно.
 function normalizeDbRole(role: string): "user" | "assistant" {
   return role === "assistant" ? "assistant" : "user";
 }
 
+// Чат түүхийн хүснэгт/индексийг DB дээр үүсгэж баталгаажуулна.
 async function ensureHistoryTable(): Promise<void> {
   if (!ensureHistoryTablePromise) {
     ensureHistoryTablePromise = (async () => {
@@ -237,6 +251,7 @@ async function ensureHistoryTable(): Promise<void> {
   await ensureHistoryTablePromise;
 }
 
+// Хэрэглэгчийн чат түүхийг DB-ээс авч, уртыг хязгаарлан буцаана.
 async function getHistory(userId: string): Promise<ChatMessage[]> {
   const rows = await prisma.$queryRaw<DbMessageRow[]>`
     SELECT "id", "role", "content", "createdAt"
@@ -265,6 +280,7 @@ async function getHistory(userId: string): Promise<ChatMessage[]> {
   }));
 }
 
+// Шинэ мессежүүдийг DB-д багцаар нэмнэ.
 async function appendHistory(userId: string, entries: ChatMessage[]): Promise<void> {
   if (entries.length === 0) return;
 
@@ -285,6 +301,7 @@ async function appendHistory(userId: string, entries: ChatMessage[]): Promise<vo
   );
 }
 
+// Хэрэглэгчийн чат түүхийг бүрэн цэвэрлэнэ.
 async function clearHistory(userId: string): Promise<void> {
   await prisma.$executeRaw`
     DELETE FROM "AiChatMessage"
@@ -292,6 +309,7 @@ async function clearHistory(userId: string): Promise<void> {
   `;
 }
 
+// Чат түүхийг уншиж буцаана.
 export async function GET() {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
@@ -311,6 +329,7 @@ export async function GET() {
   }
 }
 
+// Чат түүхийг цэвэрлээд хоосон түүх буцаана.
 export async function DELETE() {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
@@ -330,6 +349,7 @@ export async function DELETE() {
   }
 }
 
+// Хэрэглэгчийн мессежийг авч AI-гаас хариу үүсгэж хадгална.
 export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {

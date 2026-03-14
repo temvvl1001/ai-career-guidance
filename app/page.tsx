@@ -1,18 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import Header from "@/components/Header";
-import LoginPopup from "@/components/LoginPopup";
 import CareerCard from "@/components/CareerCard";
 import { TOP_CAREERS } from "@/lib/career-data";
 import { Sparkles, Target, BarChart3, Brain } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/auth-store";
 import { useUiStore } from "@/store/ui-store";
 
 export default function LandingPage() {
-  const [loginOpen, setLoginOpen] = useState(false);
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
   const { language } = useUiStore();
   const isMn = language === "mn";
+
+  const handleStartTest = () => {
+    if (user) {
+      router.push("/test");
+      return;
+    }
+    router.push("/login");
+  };
 
   return (
     <>
@@ -36,7 +44,7 @@ export default function LandingPage() {
                   : "Take our personality test, get AI-powered career recommendations, and build the skills you need to succeed."}
               </p>
               <button
-                onClick={() => setLoginOpen(true)}
+                onClick={handleStartTest}
                 className="px-8 py-4 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue text-white font-semibold text-lg hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-accent-purple/25 animate-slide-up"
               >
                 {isMn ? "Тест Эхлүүлэх" : "Start Career Test"}
@@ -126,7 +134,7 @@ export default function LandingPage() {
             </div>
             <div className="text-center mt-12">
               <button
-                onClick={() => setLoginOpen(true)}
+                onClick={handleStartTest}
                 className="px-8 py-4 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue text-white font-semibold hover:opacity-90 transition-opacity"
               >
                 {isMn ? "Тест Эхлүүлэх" : "Start Career Test"}
@@ -146,12 +154,6 @@ export default function LandingPage() {
           </div>
         </footer>
       </main>
-
-      <LoginPopup
-        isOpen={loginOpen}
-        onClose={() => setLoginOpen(false)}
-        onSuccess={() => (window.location.href = "/dashboard")}
-      />
     </>
   );
 }

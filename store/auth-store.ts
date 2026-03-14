@@ -6,6 +6,9 @@ interface User {
   email: string;
   name?: string;
   image?: string | null;
+  skills?: string[];
+  interests?: string[];
+  favoriteSubjects?: string[];
 }
 
 interface AuthState {

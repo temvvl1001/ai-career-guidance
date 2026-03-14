@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import CareerCard from "@/components/CareerCard";
 import { useAuthStore } from "@/store/auth-store";
-import { TOP_CAREERS, getCareersForMBTI } from "@/lib/career-data";
+import { ALL_CAREERS, TOP_CAREERS, recommendCareers, UserProfile } from "@/lib/career-data";
 import { Brain, Target, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -50,7 +50,24 @@ export default function DashboardPage() {
     fetchResults();
   }, []);
 
-  const recommendedCareers = mbtiType ? getCareersForMBTI(mbtiType) : TOP_CAREERS.slice(0, 5);
+  const recommendationItems = mbtiType
+    ? recommendCareers(
+        {
+          mbti: mbtiType,
+          // Use stored preferences to refine ranking.
+          interests: user?.interests ?? [],
+          favoriteSubjects: user?.favoriteSubjects ?? [],
+        } satisfies UserProfile,
+        ALL_CAREERS
+      )
+    : [];
+
+  const displayItems = mbtiType
+    ? recommendationItems.slice(0, 4)
+    : TOP_CAREERS.slice(0, 4).map((career) => ({
+        career,
+        score: undefined,
+      }));
 
   if (loading) {
     return (
@@ -102,6 +119,30 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {/* Career Preferences */}
+            <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 hover:border-accent-purple/50 transition-all">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-accent-blue/20 flex items-center justify-center">
+                    <Target className="w-7 h-7 text-accent-blue" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold">Career Preferences</h2>
+                    <p className="text-dark-400 text-sm">
+                      Add interests and favorite subjects.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/preferences"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue font-medium hover:bg-accent-blue/30 transition-colors"
+                >
+                  Start
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
             {/* Explore Top Careers */}
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -109,11 +150,12 @@ export default function DashboardPage() {
                 {mbtiType ? "Recommended for You" : "Explore Top Careers"}
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
-                {recommendedCareers.slice(0, 4).map((career) => (
+                {displayItems.map((item) => (
                   <CareerCard
-                    key={career.id}
-                    career={career}
+                    key={item.career.id}
+                    career={item.career}
                     showSkillTest={!!mbtiType}
+                    matchScore={item.score}
                   />
                 ))}
               </div>

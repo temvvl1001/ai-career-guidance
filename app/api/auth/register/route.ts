@@ -42,6 +42,9 @@ export async function POST(request: Request) {
         email: user.email,
         name: user.name,
         image: user.image,
+        skills: user.skills ?? [],
+        interests: user.interests ?? [],
+        favoriteSubjects: user.favoriteSubjects ?? [],
       },
     });
   } catch (error) {

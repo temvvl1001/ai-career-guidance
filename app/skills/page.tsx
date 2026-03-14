@@ -62,6 +62,7 @@ function SkillsContent() {
     [career]
   );
 
+  // AI зөвлөгөөг серверээс авч, state болон localStorage-д хадгална.
   const generateAdvice = useCallback(
     async (finalScore: number) => {
       setLoadingAdvice(true);

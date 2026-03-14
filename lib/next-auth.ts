@@ -12,6 +12,13 @@ const isGoogleClientSecretValid =
   /^GOCSPX-/.test(googleClientSecret);
 const hasGoogleOAuth = isGoogleClientIdValid && isGoogleClientSecretValid;
 
+function getNameFromEmail(email?: string | null): string | null {
+  if (!email) return null;
+  const localPart = email.split("@")[0]?.trim();
+  if (!localPart) return null;
+  return localPart;
+}
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -30,16 +37,28 @@ export const authOptions: NextAuthOptions = {
         throw new Error("No profile email");
       }
 
+      const email = profile.email;
+      const existing = await prisma.user.findUnique({
+        where: { email },
+        select: { name: true },
+      });
+      const existingName = existing?.name?.trim();
+      const derivedName = getNameFromEmail(email);
+      const resolvedName =
+        existingName && existingName.length > 0
+          ? existingName
+          : derivedName || profile.name || "";
+
       await prisma.user.upsert({
         where: {
-          email: profile.email,
+          email,
         },
         update: {
-          name: profile.name || "",
+          name: resolvedName,
         },
         create: {
-          email: profile.email,
-          name: profile.name || "",
+          email,
+          name: resolvedName,
           // Google users don't log in with local password.
           password: "",
         },

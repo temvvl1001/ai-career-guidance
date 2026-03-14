@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { useAuthStore } from "@/store/auth-store";
-import { User, Mail, Brain, Briefcase, TrendingUp, ChevronDown, Pencil } from "lucide-react";
+import { User, Mail, Brain, Briefcase, TrendingUp, ChevronDown, Pencil, Edit } from "lucide-react";
 import Link from "next/link";
 import {
   BarChart,
@@ -206,6 +206,7 @@ export default function ProfilePage() {
     return `- ${snippet}${words.length > 80 ? "..." : ""}`;
   };
 
+  // Сонгосон карьерын AI анализыг нэг удаа татаж, state-д хадгална.
   const ensureAdvice = async (career: string, score: number | null) => {
     const existing = adviceByCareer[career];
     if (existing?.loading || existing?.advice || existing?.error) {
@@ -362,23 +363,22 @@ export default function ProfilePage() {
     <>
       <Header />
       <main className="pt-16 min-h-screen">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.9fr]">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.9fr] min-w-0">
             {/* Profile Header - Grey Dark Theme */}
-            <div className="rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6 sm:p-8 shadow-lg h-full flex relative">
+            <div className="w-full min-w-0 rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6 sm:p-8 shadow-lg h-full flex relative">
               {!isEditing && (
                 <button
                   type="button"
                   onClick={handleEditStart}
-                  className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-[#8b5cf6] text-[#8b5cf6] text-xs sm:text-sm font-medium transition-colors"
+                  className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center gap-2 px-3 sm:px-4 sm:py-2 rounded-lg  text-[#8b5cf6] text-xs sm:text-sm font-medium transition-colors"
                 >
-                  Edit
-                  <Pencil className="w-4 h-4" />
+                  <Edit className="w-4 h-4" />
                 </button>
               )}
               <div className="flex flex-col gap-6 justify-center flex-1">
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-4 sm:gap-6 min-w-0 w-full pr-16 sm:pr-28">
+                  <div className="flex items-center gap-4 sm:gap-6 min-w-0 w-full pr-24 sm:pr-28">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#3d3e45] flex items-center justify-center overflow-hidden">
                       {avatarSrc ? (
                         <img
@@ -391,7 +391,10 @@ export default function ProfilePage() {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h1 className="text-xl sm:text-2xl font-bold text-[#e4e4e7]">
+                      <h1
+                        className="text-xl sm:text-2xl font-bold text-[#e4e4e7] truncate"
+                        title={user?.name || "User"}
+                      >
                         {user?.name || "User"}
                       </h1>
                       <div className="flex items-center gap-2 text-[#9ca3af] mt-1 min-w-0">
@@ -409,8 +412,8 @@ export default function ProfilePage() {
 
                 {isEditing && (
                   <>
-                    <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
-                      <div>
+                    <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end ">
+                      <div className="w-full max-w-[320px] sm:max-w-md">
                         <label
                           htmlFor="profile-name"
                           className="block text-sm font-medium text-[#cbd5f5] mb-2"
@@ -484,7 +487,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Personality Results */}
-            <div className="rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6">
+            <div className="w-full min-w-0 rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6">
               <h2 className="text-lg font-semibold text-[#e4e4e7] mb-4 flex items-center gap-2">
                 <Brain className="w-5 h-5 text-[#8b5cf6]" />
                 Personality Results
@@ -520,7 +523,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Progress Overview */}
-          <div className="rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6 mt-8">
+          <div className="w-full min-w-0 rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6 mt-8">
             <h2 className="text-lg font-semibold text-[#e4e4e7] mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-[#8b5cf6]" />
               Progress Overview
@@ -585,7 +588,7 @@ export default function ProfilePage() {
 
           <div className="mt-8">
             {/* Skill Results */}
-            <div className="rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6">
+            <div className="w-full min-w-0 rounded-2xl bg-[#2d2e35] border border-[#3d3e45] p-6">
               <h2 className="text-lg font-semibold text-[#e4e4e7] mb-4 flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-[#8b5cf6]" />
                 Skill Test Results
@@ -616,9 +619,12 @@ export default function ProfilePage() {
                           }
                         }}
                       >
-                        <summary className="flex items-center justify-between cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                          <div>
-                            <div className="text-[#e4e4e7] font-semibold">
+                        <summary className="flex items-center justify-between gap-3 min-w-0 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                          <div className="min-w-0 flex-1">
+                            <div
+                              className="text-[#e4e4e7] font-semibold truncate"
+                              title={career}
+                            >
                               {career}
                             </div>
                             <div className="text-xs text-[#6b6c75] mt-1">

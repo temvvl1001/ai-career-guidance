@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCareersForMBTI } from "@/lib/career-data";
+import { ALL_CAREERS, recommendCareers } from "@/lib/career-data";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,6 +12,14 @@ export async function GET(request: Request) {
     );
   }
 
-  const careers = getCareersForMBTI(mbtiType.toUpperCase());
-  return NextResponse.json({ careers });
+  // API endpoint version of the same matching algorithm.
+  const recommendations = recommendCareers(
+    {
+      mbti: mbtiType.toUpperCase(),
+      interests: [],
+      favoriteSubjects: [],
+    },
+    ALL_CAREERS
+  );
+  return NextResponse.json({ recommendations });
 }
