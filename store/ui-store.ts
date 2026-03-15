@@ -17,7 +17,7 @@ export const useUiStore = create<UiState>()(
   persist(
     (set, get) => ({
       language: "en",
-      theme: "dark",
+      theme: "light",
       setLanguage: (language) => set({ language }),
       toggleLanguage: () =>
         set({ language: get().language === "en" ? "mn" : "en" }),
@@ -25,7 +25,7 @@ export const useUiStore = create<UiState>()(
       toggleTheme: () =>
         set({ theme: get().theme === "dark" ? "light" : "dark" }),
     }),
-    { name: "ui-storage" }
+    { name: "ui-storage", skipHydration: true }
   )
 );
 

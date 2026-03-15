@@ -60,7 +60,7 @@ export default function Header() {
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden lg:flex items-center gap-6">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -140,7 +140,7 @@ export default function Header() {
               </button>
 
               <button
-                className="md:hidden p-2 rounded-lg hover:bg-dark-700"
+                className="lg:hidden p-2 rounded-lg hover:bg-dark-700"
                 onClick={() => setMenuOpen(!menuOpen)}
               >
                 <Menu className="w-5 h-5" />
@@ -149,7 +149,7 @@ export default function Header() {
           </div>
 
           {menuOpen && (
-            <div className="md:hidden py-4 border-t border-dark-700 animate-slide-up">
+            <div className="lg:hidden py-4 border-t border-dark-700 animate-slide-up">
               <nav className="flex flex-col gap-2">
                 {navLinks.map((link) => (
                   <Link
