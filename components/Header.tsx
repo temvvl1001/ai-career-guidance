@@ -2,11 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+<<<<<<< HEAD
 import { useAuthStore } from "@/store/auth-store";
 import { useUiStore } from "@/store/ui-store";
 import AIHelper from "@/components/AIHelper";
 import { Menu, User, LogOut, Sun, Moon, Languages } from "lucide-react";
+=======
+>>>>>>> 9a909a9 (update files)
 import { useEffect, useState } from "react";
+import { Menu, User, LogOut, Sun, Moon, Languages } from "lucide-react";
+
+import { useAuthStore } from "@/store/auth-store";
+import { useUiStore } from "@/store/ui-store";
+import AIHelper from "@/components/AIHelper";
 
 export default function Header() {
   const pathname = usePathname();
@@ -166,7 +174,13 @@ export default function Header() {
           )}
         </div>
       </header>
+
       {showCompactAI && <AIHelper compact />}
     </>
   );
+<<<<<<< HEAD
 }
+=======
+}
+
+>>>>>>> 9a909a9 (update files)
