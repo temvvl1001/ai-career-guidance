@@ -412,8 +412,8 @@ export default function ProfilePage() {
 
                 {isEditing && (
                   <>
-                    <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end ">
-                      <div className="w-full max-w-[320px] sm:max-w-md">
+                    <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
+                      <div className="w-full max-w-[320px] md:max-w-md">
                         <label
                           htmlFor="profile-name"
                           className="block text-sm font-medium text-[#cbd5f5] mb-2"
@@ -430,7 +430,7 @@ export default function ProfilePage() {
                         />
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 w-full md:w-auto md:justify-end">
                         <label className="px-4 py-3 rounded-lg bg-[#1a1b26] border border-[#3d3e45] text-[#cbd5f5] text-sm font-medium cursor-pointer hover:border-[#8b5cf6] transition-colors">
                           Upload photo
                           <input
