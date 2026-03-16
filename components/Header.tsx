@@ -3,13 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
-<<<<<<< HEAD
 import { useUiStore } from "@/store/ui-store";
-import { Menu, User, LogOut, Sun, Moon, Languages } from "lucide-react";
-=======
 import AIHelper from "@/components/AIHelper";
-import { Menu, User, LogOut } from "lucide-react";
->>>>>>> 6de7886c0ba996122197bdfc4009abd51b46e1ba
+import { Menu, User, LogOut, Sun, Moon, Languages } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Header() {
@@ -42,6 +38,7 @@ export default function Header() {
     { href: "/test", label: isMn ? "Хувь хүний тест" : "Personality Test" },
     { href: "/results", label: isMn ? "Үр дүн" : "Results" },
   ];
+
   const showCompactAI =
     Boolean(pathname) && pathname !== "/" && !pathname.startsWith("/test");
 
@@ -53,116 +50,17 @@ export default function Header() {
   };
 
   return (
-<<<<<<< HEAD
-    <header className="fixed top-0 left-0 right-0 z-50 bg-dark-950/80 backdrop-blur-md border-b border-dark-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent">
-              {isMn ? "AI Мэргэжил Сонголт" : "AI Career Guide"}
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors ${
-                  mounted && pathname === link.href
-                    ? "text-accent-purple"
-                    : "text-dark-300 hover:text-white"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-4">
-            {user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className="flex items-center gap-2 p-2 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors"
-                >
-                  <User className="w-5 h-5 text-accent-purple" />
-                  <span className="hidden sm:inline text-sm">{user.email}</span>
-                </button>
-                {profileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 py-2 bg-dark-800 rounded-xl shadow-xl border border-dark-600 animate-fade-in">
-                    <Link
-                      href="/profile"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-dark-700"
-                    >
-                      <User className="w-4 h-4" />
-                      Profile
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-dark-700 text-red-400"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                {isMn ? "Нэвтрэх" : "Sign In"}
-              </Link>
-            )}
-
-            <button
-              onClick={toggleLanguage}
-              className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 text-xs text-dark-200"
-            >
-              <Languages className="w-3 h-3" />
-              <span>{isMn ? "MN" : "EN"}</span>
-            </button>
-
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700"
-              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-4 h-4 text-yellow-300" />
-              ) : (
-                <Moon className="w-4 h-4 text-blue-300" />
-              )}
-            </button>
-
-            <button
-              className="md:hidden p-2 rounded-lg hover:bg-dark-700"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {menuOpen && (
-          <div className="md:hidden py-4 border-t border-dark-700 animate-slide-up">
-            <nav className="flex flex-col gap-2">
-=======
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-dark-950/80 backdrop-blur-md border-b border-dark-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
               <span className="text-xl font-bold bg-gradient-to-r from-accent-purple to-accent-blue bg-clip-text text-transparent">
-                AI Career Guide
+                {isMn ? "AI Мэргэжил Сонголт" : "AI Career Guide"}
               </span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6">
->>>>>>> 6de7886c0ba996122197bdfc4009abd51b46e1ba
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -213,9 +111,29 @@ export default function Header() {
                   href="/login"
                   className="px-4 py-2 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white text-sm font-medium hover:opacity-90 transition-opacity"
                 >
-                  Sign In
+                  {isMn ? "Нэвтрэх" : "Sign In"}
                 </Link>
               )}
+
+              <button
+                onClick={toggleLanguage}
+                className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 text-xs text-dark-200"
+              >
+                <Languages className="w-3 h-3" />
+                <span>{isMn ? "MN" : "EN"}</span>
+              </button>
+
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700"
+                aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-4 h-4 text-yellow-300" />
+                ) : (
+                  <Moon className="w-4 h-4 text-blue-300" />
+                )}
+              </button>
 
               <button
                 className="md:hidden p-2 rounded-lg hover:bg-dark-700"

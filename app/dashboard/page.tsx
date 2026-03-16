@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import CareerCard from "@/components/CareerCard";
 import { useAuthStore } from "@/store/auth-store";
-import { TOP_CAREERS, getCareersForMBTI } from "@/lib/career-data";
+import { useUiStore } from "@/store/ui-store";
 import { Brain, Target, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const { user, setUser } = useAuthStore();
+  const { language } = useUiStore();
   const [loading, setLoading] = useState(true);
   const [mbtiType, setMbtiType] = useState<string | null>(null);
+  const [careers, setCareers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -50,7 +52,25 @@ export default function DashboardPage() {
     fetchResults();
   }, []);
 
-  const recommendedCareers = mbtiType ? getCareersForMBTI(mbtiType) : TOP_CAREERS.slice(0, 5);
+  // MBTI эсвэл locale өөрчлөгдөхөд дата дахин авах
+  useEffect(() => {
+    const fetchCareers = async () => {
+      if (mbtiType) {
+        const res = await fetch(`/api/careers/mbti?mbti=${mbtiType}&locale=${language}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCareers(data.careers || []);
+        }
+      } else {
+        const res = await fetch(`/api/careers?locale=${language}`);
+        if (res.ok) {
+          const data = await res.json();
+          setCareers(data || []);
+        }
+      }
+    };
+    fetchCareers();
+  }, [mbtiType, language]);
 
   if (loading) {
     return (
@@ -102,14 +122,14 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Explore Top Careers */}
+            {/* Careers */}
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Target className="w-5 h-5 text-accent-blue" />
                 {mbtiType ? "Recommended for You" : "Explore Top Careers"}
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
-                {recommendedCareers.slice(0, 4).map((career) => (
+                {careers.slice(0, 4).map((career) => (
                   <CareerCard
                     key={career.id}
                     career={career}
@@ -121,7 +141,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
-
     </>
   );
 }

@@ -1,18 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import LoginPopup from "@/components/LoginPopup";
 import CareerCard from "@/components/CareerCard";
-import { TOP_CAREERS } from "@/lib/career-data";
 import { Sparkles, Target, BarChart3, Brain } from "lucide-react";
-import Link from "next/link";
 import { useUiStore } from "@/store/ui-store";
 
 export default function LandingPage() {
   const [loginOpen, setLoginOpen] = useState(false);
+  const [careers, setCareers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { language } = useUiStore();
   const isMn = language === "mn";
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/careers?locale=${language}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setCareers(data);
+        setLoading(false);
+      });
+  }, [language]);
 
   return (
     <>
@@ -120,9 +130,15 @@ export default function LandingPage() {
                 : "Explore the most in-demand careers in tech and beyond"}
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-              {TOP_CAREERS.map((career) => (
-                <CareerCard key={career.id} career={career} />
-              ))}
+              {loading ? (
+                <p className="text-dark-400 col-span-5 text-center">
+                  {isMn ? "Уншиж байна..." : "Loading..."}
+                </p>
+              ) : (
+                careers.map((career: any) => (
+                  <CareerCard key={career.id} career={career} />
+                ))
+              )}
             </div>
             <div className="text-center mt-12">
               <button

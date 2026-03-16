@@ -8,27 +8,27 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  testResults  TestResult[]
-  skillResults SkillResult[]
-  accounts     Account[]
+  id            String          @id @default(uuid())
+  email         String          @unique
+  password      String
+  name          String?
+  image         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  accounts      Account[]
+  AiChatMessage AiChatMessage[]
+  skillResults  SkillResult[]
+  testResults   TestResult[]
 }
 
 model TestResult {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   mbtiType  String
-  answers   Json     // Array of { questionId, answer }
-  scores    Json     // Personality dimension scores
+  answers   Json
+  scores    Json
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -36,11 +36,11 @@ model TestResult {
 model SkillResult {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   career    String
   score     Int
-  answers   Json     // Array of { questionId, answer, isCorrect }
+  answers   Json
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -61,4 +61,39 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model Career {
+  id               String   @id
+  name             String
+  description      String
+  salary           String
+  demandLevel      String
+  requiredSkills   String[]
+  futureDemand     String
+  createdAt        DateTime @default(now())
+  nameMn           String?
+  descriptionMn    String?
+  futureDemandMn   String?
+  requiredSkillsMn String[]
+  salaryMn         String?
+  demandLevelMn    String?
+}
+
+model MBTICareerMap {
+  id        String   @id @default(cuid())
+  mbtiType  String   @unique
+  careerIds String[]
+  createdAt DateTime @default(now())
+}
+
+model AiChatMessage {
+  id        String   @id
+  userId    String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
