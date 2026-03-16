@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import CareerCard from "@/components/CareerCard";
 import CareerComparison from "@/components/CareerComparison";
 import ResultGraph from "@/components/ResultGraph";
-import { getCareersForMBTI, Career } from "@/lib/career-data";
+import { ALL_CAREERS, recommendCareers, UserProfile } from "@/lib/career-data";
 import { getPersonalityDescription } from "@/lib/mbti-questions";
 import { MBTIScores } from "@/lib/mbti-questions";
 import { useRouter } from "next/navigation";
@@ -14,17 +14,26 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true);
   const [mbtiType, setMbtiType] = useState<string | null>(null);
   const [scores, setScores] = useState<MBTIScores | null>(null);
+  const [userPrefs, setUserPrefs] = useState<{
+    interests: string[];
+    favoriteSubjects: string[];
+  }>({ interests: [], favoriteSubjects: [] });
   const router = useRouter();
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await fetch("/api/mbti/results");
-        if (!res.ok) {
+        // Load MBTI results + user preferences in parallel for scoring.
+        const [mbtiRes, authRes] = await Promise.all([
+          fetch("/api/mbti/results"),
+          fetch("/api/auth/me"),
+        ]);
+
+        if (!mbtiRes.ok) {
           router.push("/test");
           return;
         }
-        const data = await res.json();
+        const data = await mbtiRes.json();
         if (!data.results?.length) {
           router.push("/test");
           return;
@@ -32,6 +41,15 @@ export default function ResultsPage() {
         const latest = data.results[0];
         setMbtiType(latest.mbtiType);
         setScores(latest.scores as MBTIScores);
+
+        if (authRes.ok) {
+          const authData = await authRes.json();
+          // Preferences come from profile/preferences page.
+          setUserPrefs({
+            interests: authData?.user?.interests ?? [],
+            favoriteSubjects: authData?.user?.favoriteSubjects ?? [],
+          });
+        }
       } catch {
         router.push("/test");
       } finally {
@@ -55,7 +73,16 @@ export default function ResultsPage() {
   if (!mbtiType || !scores) return null;
 
   const { strengths, weaknesses } = getPersonalityDescription(mbtiType);
-  const careers = getCareersForMBTI(mbtiType);
+
+  const profile: UserProfile = {
+    mbti: mbtiType,
+    interests: userPrefs.interests,
+    favoriteSubjects: userPrefs.favoriteSubjects,
+  };
+
+  // Algorithmic recommendations with match scores.
+  const recommendations = recommendCareers(profile, ALL_CAREERS);
+  const careers = recommendations.map((item) => item.career);
 
   return (
     <>
@@ -82,11 +109,12 @@ export default function ResultsPage() {
                 Recommended Careers for {mbtiType}
               </h2>
               <div className="grid sm:grid-cols-2 gap-6 mb-8">
-                {careers.map((career) => (
+                {recommendations.map((item) => (
                   <CareerCard
-                    key={career.id}
-                    career={career}
+                    key={item.career.id}
+                    career={item.career}
                     showSkillTest
+                    matchScore={item.score}
                   />
                 ))}
               </div>

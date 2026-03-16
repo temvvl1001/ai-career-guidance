@@ -6,6 +6,9 @@ interface User {
   email: string;
   name?: string;
   image?: string | null;
+  skills?: string[];
+  interests?: string[];
+  favoriteSubjects?: string[];
 }
 
 interface AuthState {
@@ -21,6 +24,6 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user) => set({ user }),
       logout: () => set({ user: null }),
     }),
-    { name: "auth-storage" }
+    { name: "auth-storage", skipHydration: true }
   )
 );

@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 export default function TestPage() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
-  const [testComplete, setTestComplete] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,8 +42,7 @@ export default function TestPage() {
       });
 
       if (res.ok) {
-        setTestComplete(true);
-        router.push("/results");
+        router.push("/preferences");
       } else {
         const data = await res.json();
         alert(data.error || "Failed to save results");

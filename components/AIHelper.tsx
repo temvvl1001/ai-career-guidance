@@ -18,6 +18,7 @@ interface AIHelperProps {
   compact?: boolean;
 }
 
+// API-аас ирсэн мессежийн бүтэц зөв эсэхийг шалгана.
 const isValidMessage = (value: unknown): value is Message => {
   if (!value || typeof value !== "object") return false;
 
@@ -29,6 +30,7 @@ const isValidMessage = (value: unknown): value is Message => {
   );
 };
 
+// API-гийн хариуг цэвэрлэж, зөв мессежүүдийг сонгон авна.
 const parseApiMessages = (raw: unknown): Message[] => {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -40,6 +42,7 @@ const parseApiMessages = (raw: unknown): Message[] => {
     .slice(-MAX_HISTORY_MESSAGES);
 };
 
+// State шинэчлэх шаардлагатай эсэхийг шалгахын тулд массивуудыг харьцуулна.
 const areMessagesEqual = (left: Message[], right: Message[]) => {
   if (left.length !== right.length) return false;
 
@@ -69,10 +72,12 @@ export default function AIHelper({
   const [openStateReady, setOpenStateReady] = useState(!compact);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Шинэ мессеж ирэхэд хамгийн доош гүйлгэж үзүүлнэ.
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Серверээс чат түүхийг уншиж state-д тохируулна.
   const loadHistory = useCallback(async () => {
     try {
       const res = await fetch("/api/ai/chat", { method: "GET" });
@@ -127,6 +132,7 @@ export default function AIHelper({
     localStorage.setItem(openStateStorageKey, isOpen ? "1" : "0");
   }, [compact, isOpen, openStateStorageKey, openStateReady]);
 
+  // Чат түүхийг сервер дээрээс цэвэрлэнэ.
   const clearHistory = async () => {
     if (loading) return;
     setLoading(true);
@@ -157,6 +163,7 @@ export default function AIHelper({
     }
   };
 
+  // Хэрэглэгчийн мессежийг AI руу илгээж хариуг state-д нэмнэ.
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 

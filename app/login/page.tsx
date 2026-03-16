@@ -66,7 +66,15 @@ export default function LoginPage() {
 
       if (!res.ok) throw new Error(data.error || "Something went wrong");
 
-      setUser({ id: data.user.id, email: data.user.email, name: data.user.name });
+      setUser({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        image: data.user.image,
+        skills: data.user.skills ?? [],
+        interests: data.user.interests ?? [],
+        favoriteSubjects: data.user.favoriteSubjects ?? [],
+      });
       window.location.href = "/dashboard";
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

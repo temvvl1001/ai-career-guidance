@@ -21,8 +21,37 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const name = formData.get("name");
   const image = formData.get("image");
+  const skills = formData.get("skills");
+  const interests = formData.get("interests");
+  const favoriteSubjects = formData.get("favoriteSubjects") ?? formData.get("subjects");
 
-  const updateData: { name?: string; image?: string } = {};
+  const updateData: {
+    name?: string;
+    image?: string;
+    skills?: string[];
+    interests?: string[];
+    favoriteSubjects?: string[];
+  } = {};
+
+  const parseList = (value: FormDataEntryValue | null) => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => String(item).trim())
+          .filter(Boolean);
+      }
+    } catch {
+      // fall back to comma-separated parsing
+    }
+    return trimmed
+      .split(/[,\\n]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  };
 
   if (typeof name === "string") {
     const trimmed = name.trim();
@@ -55,6 +84,21 @@ export async function POST(request: Request) {
     updateData.image = `data:${file.type};base64,${base64}`;
   }
 
+  const parsedSkills = parseList(skills);
+  if (parsedSkills !== undefined) {
+    updateData.skills = parsedSkills;
+  }
+
+  const parsedInterests = parseList(interests);
+  if (parsedInterests !== undefined) {
+    updateData.interests = parsedInterests;
+  }
+
+  const parsedSubjects = parseList(favoriteSubjects);
+  if (parsedSubjects !== undefined) {
+    updateData.favoriteSubjects = parsedSubjects;
+  }
+
   if (Object.keys(updateData).length === 0) {
     return NextResponse.json(
       { error: "No changes provided." },
@@ -65,7 +109,15 @@ export async function POST(request: Request) {
   const user = await prisma.user.update({
     where: { id: currentUser.userId },
     data: updateData,
-    select: { id: true, email: true, name: true, image: true },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      image: true,
+      skills: true,
+      interests: true,
+      favoriteSubjects: true,
+    },
   });
 
   return NextResponse.json({ user });
