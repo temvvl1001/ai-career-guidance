@@ -176,7 +176,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-lg bg-gradient-to-r from-accent-purple to-accent-blue text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary-hover transition-colors disabled:opacity-50"
             >
               {loading
                 ? isMn
@@ -197,7 +197,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
-               
+                className="w-full py-3 rounded-lg bg-dark-900 border border-dark-700 text-dark-100 font-medium hover:border-accent-blue/60 hover:text-accent-blue transition-colors"
               >
                 {isLogin
                   ? isMn

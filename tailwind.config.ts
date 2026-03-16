@@ -27,6 +27,10 @@ const config: Config = {
           blue: "rgb(var(--accent-blue) / <alpha-value>)",
           emerald: "rgb(var(--accent-emerald) / <alpha-value>)",
         },
+        primary: "rgb(var(--primary) / <alpha-value>)",
+        ai: "rgb(var(--ai) / <alpha-value>)",
+        "primary-hover": "rgb(var(--primary-hover) / <alpha-value>)",
+        "ai-hover": "rgb(var(--ai-hover) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

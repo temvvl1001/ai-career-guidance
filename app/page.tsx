@@ -47,7 +47,7 @@ export default function LandingPage() {
               </p>
               <button
                 onClick={() => setLoginOpen(true)}
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue text-white font-semibold text-lg hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-accent-purple/25 animate-slide-up"
+                className="px-8 py-4 rounded-xl bg-primary text-white font-semibold text-lg hover:bg-primary-hover transition-all hover:scale-105 shadow-lg shadow-primary/25 animate-slide-up"
               >
                 {isMn ? "Тест Эхлүүлэх" : "Start Career Test"}
               </button>
@@ -143,7 +143,7 @@ export default function LandingPage() {
             <div className="text-center mt-12">
               <button
                 onClick={() => setLoginOpen(true)}
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue text-white font-semibold hover:opacity-90 transition-opacity"
+                className="px-8 py-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-hover transition-colors"
               >
                 {isMn ? "Тест Эхлүүлэх" : "Start Career Test"}
               </button>

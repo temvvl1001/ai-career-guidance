@@ -51,14 +51,14 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
         </div>
         <div className="h-2 rounded-full bg-dark-700 overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-accent-purple to-accent-blue transition-all duration-300"
+            className="h-full bg-primary transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
       <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 animate-fade-in">
-        <p className="text-lg text-white mb-6">{question.question}</p>
+        <p className="text-lg text-black mb-6">{question.question}</p>
 
         <div className="space-y-3">
           {OPTIONS.map((opt) => (
