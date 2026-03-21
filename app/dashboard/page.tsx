@@ -4,16 +4,14 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import CareerCard from "@/components/CareerCard";
 import { useAuthStore } from "@/store/auth-store";
-import { useUiStore } from "@/store/ui-store";
+import { ALL_CAREERS, TOP_CAREERS, recommendCareers, UserProfile } from "@/lib/career-data";
 import { Brain, Target, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const { user, setUser } = useAuthStore();
-  const { language } = useUiStore();
   const [loading, setLoading] = useState(true);
   const [mbtiType, setMbtiType] = useState<string | null>(null);
-  const [careers, setCareers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -52,25 +50,24 @@ export default function DashboardPage() {
     fetchResults();
   }, []);
 
-  // MBTI эсвэл locale өөрчлөгдөхөд дата дахин авах
-  useEffect(() => {
-    const fetchCareers = async () => {
-      if (mbtiType) {
-        const res = await fetch(`/api/careers/mbti?mbti=${mbtiType}&locale=${language}`);
-        if (res.ok) {
-          const data = await res.json();
-          setCareers(data.careers || []);
-        }
-      } else {
-        const res = await fetch(`/api/careers?locale=${language}`);
-        if (res.ok) {
-          const data = await res.json();
-          setCareers(data || []);
-        }
-      }
-    };
-    fetchCareers();
-  }, [mbtiType, language]);
+  const recommendationItems = mbtiType
+    ? recommendCareers(
+        {
+          mbti: mbtiType,
+          // Use stored preferences to refine ranking.
+          interests: user?.interests ?? [],
+          favoriteSubjects: user?.favoriteSubjects ?? [],
+        } satisfies UserProfile,
+        ALL_CAREERS
+      )
+    : [];
+
+  const displayItems = mbtiType
+    ? recommendationItems.slice(0, 4)
+    : TOP_CAREERS.slice(0, 4).map((career) => ({
+        career,
+        score: undefined,
+      }));
 
   if (loading) {
     return (
@@ -122,18 +119,43 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Careers */}
+            {/* Career Preferences */}
+            <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 hover:border-accent-purple/50 transition-all">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-accent-blue/20 flex items-center justify-center">
+                    <Target className="w-7 h-7 text-accent-blue" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold">Career Preferences</h2>
+                    <p className="text-dark-400 text-sm">
+                      Add interests and favorite subjects.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/preferences"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue font-medium hover:bg-accent-blue/30 transition-colors"
+                >
+                  Start
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Explore Top Careers */}
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Target className="w-5 h-5 text-accent-blue" />
                 {mbtiType ? "Recommended for You" : "Explore Top Careers"}
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
-                {careers.slice(0, 4).map((career) => (
+                {displayItems.map((item) => (
                   <CareerCard
-                    key={career.id}
-                    career={career}
+                    key={item.career.id}
+                    career={item.career}
                     showSkillTest={!!mbtiType}
+                    matchScore={item.score}
                   />
                 ))}
               </div>
@@ -141,6 +163,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
+
     </>
   );
 }

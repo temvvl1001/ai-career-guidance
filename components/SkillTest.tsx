@@ -64,17 +64,17 @@ export default function SkillTest({ questions, career, onComplete }: SkillTestPr
 
       <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 animate-fade-in">
         <span className="text-xs text-accent-purple font-medium">{question.category}</span>
-        <p className="text-lg text-white mt-2 mb-6">{question.question}</p>
+        <p className="text-lg text-dark-100 mt-2 mb-6">{question.question}</p>
 
         <div className="space-y-3">
           {question.options.map((opt, idx) => (
             <button
               key={idx}
               onClick={() => handleAnswer(idx)}
-              className={`w-full p-4 rounded-xl text-left transition-all ${
+              className={`w-full p-4 rounded-xl text-left transition-all text-dark-100 hover:text-primary border-2 border-slate-200 bg-slate-50 dark:border-dark-600 dark:bg-dark-700/50 hover:border-primary active:border-primary focus-visible:border-primary dark:hover:border-primary dark:active:border-primary dark:focus-visible:border-primary ${
                 answers[question.id] === idx
-                  ? "bg-accent-blue/30 border-2 border-accent-blue"
-                  : "bg-dark-700/50 border-2 border-transparent hover:border-dark-500"
+                  ? "bg-primary/10 border-primary text-primary dark:border-primary dark:bg-primary/15"
+                  : ""
               }`}
             >
               <span className="font-medium">{opt}</span>
@@ -86,7 +86,7 @@ export default function SkillTest({ questions, career, onComplete }: SkillTestPr
           <button
             onClick={handleBack}
             disabled={currentIndex === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-700 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-700 text-dark-100 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Back

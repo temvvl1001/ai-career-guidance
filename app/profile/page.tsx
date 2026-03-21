@@ -366,7 +366,7 @@ export default function ProfilePage() {
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.9fr] min-w-0">
             {/* Profile Header - Grey Dark Theme */}
-           <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6 sm:p-8 shadow-xl h-full flex relative">
+           <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6 sm:p-8 shadow-lg shadow-black/5 dark:shadow-black/40 h-full flex relative">
               {!isEditing && (
                 <button
                   type="button"
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <User className="w-10 h-10 text-dark-600" />
+                        <User className="w-10 h-10 text-dark-400" />
                       )}
                     </div>
                     <div className="min-w-0">
@@ -397,7 +397,7 @@ export default function ProfilePage() {
                       >
                         {user?.name || "User"}
                       </h1>
-                      <div className="flex items-center gap-2 text-dark-500 mt-1 min-w-0">
+                      <div className="flex items-center gap-2 text-dark-400 mt-1 min-w-0">
                         <Mail className="w-4 h-4 shrink-0" />
                         <span
                           className="min-w-0 flex-1 truncate"
@@ -444,7 +444,7 @@ export default function ProfilePage() {
                           <button
                             type="button"
                             onClick={() => setSelectedImage(null)}
-                            className="px-4 py-3 rounded-lg border border-dark-700 text-dark-500 text-sm font-medium hover:text-dark-100 hover:border-dark-600 transition-colors"
+                            className="px-4 py-3 rounded-lg border border-dark-700 text-dark-400 text-sm font-medium hover:text-dark-100 hover:border-dark-600 transition-colors"
                           >
                             Clear
                           </button>
@@ -452,7 +452,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={handleEditCancel}
-                          className="px-4 py-3 rounded-lg border border-dark-700 text-dark-500 text-sm font-medium hover:text-dark-100 hover:border-dark-600 transition-colors"
+                          className="px-4 py-3 rounded-lg border border-dark-700 text-dark-400 text-sm font-medium hover:text-dark-100 hover:border-dark-600 transition-colors"
                         >
                           Cancel
                         </button>
@@ -467,7 +467,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-dark-600">
+                    <p className="text-xs text-dark-400">
                       Supported formats: JPG, PNG, WEBP, GIF. Max size 2MB.
                     </p>
                   </>
@@ -487,7 +487,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Personality Results */}
-            <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6">
+            <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6 shadow-lg shadow-black/5 dark:shadow-black/40">
               <h2 className="text-lg font-semibold text-dark-100 mb-4 flex items-center gap-2">
                 <Brain className="w-5 h-5 text-ai" />
                 Personality Results
@@ -502,20 +502,20 @@ export default function ProfilePage() {
                       <span className="text-xl font-bold text-ai">
                         {r.mbtiType}
                       </span>
-                      <p className="text-dark-600 text-xs mt-1">
+                      <p className="text-dark-400 text-xs mt-1">
                         {new Date(r.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-dark-600 text-sm mb-4">
+                <p className="text-dark-400 text-sm mb-4">
                   Take the personality test to see your results.
                 </p>
               )}
               <Link
                 href="/test"
-                className="text-accent-blue hover:underline text-sm font-medium"
+                className="text-primary hover:underline text-sm font-medium"
               >
                 View Recommendations →
               </Link>
@@ -523,12 +523,12 @@ export default function ProfilePage() {
           </div>
 
           {/* Progress Overview */}
-          <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6 mt-8">
+          <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6 mt-8 shadow-lg shadow-black/5 dark:shadow-black/40">
             <h2 className="text-lg font-semibold text-dark-100 mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-ai" />
               Progress Overview
             </h2>
-            <p className="text-xs text-dark-600 mb-4">
+            <p className="text-xs text-dark-400 mb-4">
               Latest vs previous skill test per career.
             </p>
             {skillResults.length > 0 ? (
@@ -580,7 +580,7 @@ export default function ProfilePage() {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-dark-600 text-sm">
+              <p className="text-dark-400 text-sm">
                 Complete skill tests to see your progress here.
               </p>
             )}
@@ -588,7 +588,7 @@ export default function ProfilePage() {
 
           <div className="mt-8">
             {/* Skill Results */}
-            <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6">
+            <div className="w-full min-w-0 rounded-2xl bg-dark-900 border border-dark-700 p-6 shadow-lg shadow-black/5 dark:shadow-black/40">
               <h2 className="text-lg font-semibold text-dark-100 mb-4 flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-ai" />
                 Skill Test Results
@@ -627,7 +627,7 @@ export default function ProfilePage() {
                             >
                               {career}
                             </div>
-                            <div className="text-xs text-dark-600 mt-1">
+                            <div className="text-xs text-dark-400 mt-1">
                               Latest {formatScore(latestScore)} | Previous{" "}
                               {formatScore(previousScore)} | Change{" "}
                               {formatDelta(delta)}
@@ -641,13 +641,13 @@ export default function ProfilePage() {
                             >
                               {formatScore(latestScore)}
                             </span>
-                            <ChevronDown className="w-4 h-4 text-dark-500 transition-transform group-open:rotate-180" />
+                            <ChevronDown className="w-4 h-4 text-dark-400 transition-transform group-open:rotate-180" />
                           </div>
                         </summary>
 
                         <div className="mt-4 grid gap-4 md:grid-cols-2">
                           <div className="rounded-lg bg-dark-900 border border-dark-700 p-4">
-                            <h3 className="text-sm font-semibold text-[#e4e4e7] mb-3">
+                            <h3 className="text-sm font-semibold text-dark-100 mb-3">
                               Attempt Comparison
                             </h3>
                             <div className="space-y-2 text-sm">
@@ -680,7 +680,7 @@ export default function ProfilePage() {
                                 <span>Change</span>
                                 <span
                                   className={`font-semibold ${delta === null
-                                    ? "text-dark-600"
+                                    ? "text-dark-400"
                                     : delta >= 0
                                       ? "text-emerald-400"
                                       : "text-red-400"
@@ -700,7 +700,7 @@ export default function ProfilePage() {
                               AI Analysis
                             </h3>
                             {adviceState?.loading ? (
-                              <p className="text-dark-600 text-sm">
+                              <p className="text-dark-400 text-sm">
                                 Generating AI analysis...
                               </p>
                             ) : adviceState?.advice ? (
@@ -713,11 +713,11 @@ export default function ProfilePage() {
                                 }}
                               />
                             ) : adviceState?.error ? (
-                              <p className="text-dark-600 text-sm">
+                              <p className="text-dark-400 text-sm">
                                 {adviceState.error}
                               </p>
                             ) : (
-                              <p className="text-dark-600 text-sm">
+                              <p className="text-dark-400 text-sm">
                                 Open this card to generate AI analysis.
                               </p>
                             )}
@@ -725,7 +725,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="mt-4">
-                          <h4 className="text-sm font-semibold text-[#e4e4e7] mb-2">
+                          <h4 className="text-sm font-semibold text-dark-100 mb-2">
                             All Attempts
                           </h4>
                           <div className="space-y-2">
@@ -734,7 +734,7 @@ export default function ProfilePage() {
                                 key={attempt.id}
                                 className="flex items-center justify-between rounded-lg bg-dark-900 border border-dark-700 px-3 py-2 text-sm"
                               >
-                                <span className="text-dark-500">
+                                <span className="text-dark-400">
                                   {formatDate(attempt.createdAt)}
                                 </span>
                                 <span
@@ -753,13 +753,13 @@ export default function ProfilePage() {
                   })}
                 </div>
               ) : (
-                <p className="text-dark-600 text-sm mb-4">
+                <p className="text-dark-400 text-sm mb-4">
                   Complete skill tests for your target careers.
                 </p>
               )}
               <Link
                 href="/results"
-                className="text-accent-blue hover:underline text-sm font-medium"
+                className="text-primary hover:underline text-sm font-medium"
               >
                 View Recommendations →
               </Link>

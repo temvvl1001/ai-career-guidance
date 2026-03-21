@@ -6,21 +6,20 @@ export interface SkillQuestion {
   category: string;
 }
 
-export const SOFTWARE_ENGINEER_QUESTIONS: SkillQuestion[] = [
-  { id: 1, question: "What does the following code output? console.log(2 + '2')", options: ["4", "22", "NaN", "Error"], correctAnswer: 1, category: "Programming" },
-  { id: 2, question: "Which data structure uses LIFO (Last In First Out)?", options: ["Queue", "Stack", "Array", "Linked List"], correctAnswer: 1, category: "Logic" },
-  { id: 3, question: "What is the time complexity of binary search?" , options: ["O(n)", "O(log n)", "O(n²)", "O(1)"], correctAnswer: 1, category: "Problem Solving" },
-  { id: 4, question: "Which keyword is used to declare a constant in JavaScript?", options: ["var", "let", "const", "constant"], correctAnswer: 2, category: "Programming" },
-  { id: 5, question: "What does API stand for?", options: ["Application Programming Interface", "Advanced Program Integration", "Automated Process Interface", "Application Process Integration"], correctAnswer: 0, category: "Technical" },
-  { id: 6, question: "In OOP, what is encapsulation?", options: ["Bundling data with methods", "Inheriting from parent class", "Creating multiple forms", "Hiding implementation"], correctAnswer: 0, category: "Programming" },
-  { id: 7, question: "Which HTTP method is used to create a new resource?", options: ["GET", "POST", "PUT", "DELETE"], correctAnswer: 1, category: "Technical" },
-  { id: 8, question: "What is a recursive function?", options: ["A function that calls another function", "A function that calls itself", "A function with no parameters", "A function that returns void"], correctAnswer: 1, category: "Logic" },
-  { id: 9, question: "What does SQL stand for?", options: ["Structured Query Language", "Simple Query Language", "Standard Query Logic", "System Query Language"], correctAnswer: 0, category: "Technical" },
-  { id: 10, question: "Which is NOT a valid variable naming convention?", options: ["camelCase", "snake_case", "PascalCase", "kebab-case"], correctAnswer: 3, category: "Programming" },
-];
-
 export const CAREER_SKILL_QUESTIONS: Record<string, SkillQuestion[]> = {
-  "Software Engineer": SOFTWARE_ENGINEER_QUESTIONS,
+  "Software Engineer": [
+    { id: 1, question: "What does the following code output? console.log(2 + '2')", options: ["4", "22", "NaN", "Error"], correctAnswer: 1, category: "Programming" },
+    { id: 2, question: "Which data structure uses LIFO (Last In First Out)?", options: ["Queue", "Stack", "Array", "Linked List"], correctAnswer: 1, category: "Logic" },
+    { id: 3, question: "What is the time complexity of binary search?", options: ["O(n)", "O(log n)", "O(n²)", "O(1)"], correctAnswer: 1, category: "Problem Solving" },
+    { id: 4, question: "Which keyword is used to declare a constant in JavaScript?", options: ["var", "let", "const", "constant"], correctAnswer: 2, category: "Programming" },
+    { id: 5, question: "What does API stand for?", options: ["Application Programming Interface", "Advanced Program Integration", "Automated Process Interface", "Application Process Integration"], correctAnswer: 0, category: "Technical" },
+    { id: 6, question: "In OOP, what is encapsulation?", options: ["Bundling data with methods", "Inheriting from parent class", "Creating multiple forms", "Hiding implementation"], correctAnswer: 0, category: "Programming" },
+    { id: 7, question: "Which HTTP method is used to create a new resource?", options: ["GET", "POST", "PUT", "DELETE"], correctAnswer: 1, category: "Technical" },
+    { id: 8, question: "What is a recursive function?", options: ["A function that calls another function", "A function that calls itself", "A function with no parameters", "A function that returns void"], correctAnswer: 1, category: "Logic" },
+    { id: 9, question: "What does SQL stand for?", options: ["Structured Query Language", "Simple Query Language", "Standard Query Logic", "System Query Language"], correctAnswer: 0, category: "Technical" },
+    { id: 10, question: "Which is NOT a valid variable naming convention?", options: ["camelCase", "snake_case", "PascalCase", "kebab-case"], correctAnswer: 3, category: "Programming" },
+  ],
+
   "Data Scientist": [
     { id: 1, question: "What is the purpose of a p-value in statistics?", options: ["Measure effect size", "Probability of observed data given null hypothesis", "Confidence level", "Sample size"], correctAnswer: 1, category: "Statistics" },
     { id: 2, question: "Which algorithm is used for classification?", options: ["K-Means", "Linear Regression", "Logistic Regression", "PCA"], correctAnswer: 2, category: "Machine Learning" },
@@ -33,6 +32,7 @@ export const CAREER_SKILL_QUESTIONS: Record<string, SkillQuestion[]> = {
     { id: 9, question: "What does EDA stand for?", options: ["Extended Data Analysis", "Exploratory Data Analysis", "External Data Access", "Efficient Data Algorithm"], correctAnswer: 1, category: "Statistics" },
     { id: 10, question: "Which metric is used for regression models?", options: ["Accuracy", "F1-Score", "RMSE", "Precision"], correctAnswer: 2, category: "Machine Learning" },
   ],
+
   "UI/UX Designer": [
     { id: 1, question: "What does UX stand for?", options: ["User Experience", "User Extension", "Universal Experience", "User Execution"], correctAnswer: 0, category: "UX" },
     { id: 2, question: "What is a wireframe?", options: ["Final design", "Low-fidelity layout", "Color scheme", "Typography"], correctAnswer: 1, category: "Design" },
@@ -45,6 +45,7 @@ export const CAREER_SKILL_QUESTIONS: Record<string, SkillQuestion[]> = {
     { id: 9, question: "What is a user persona?", options: ["Real user", "Fictional user representation", "Admin account", "Test account"], correctAnswer: 1, category: "UX" },
     { id: 10, question: "What does CTA stand for?", options: ["Click Through Analysis", "Call To Action", "Content Type Agreement", "Customer Touchpoint Analysis"], correctAnswer: 1, category: "Design" },
   ],
+
   "Cyber Security Analyst": [
     { id: 1, question: "What is phishing?", options: ["Network scanning", "Social engineering attack", "Encryption method", "Firewall type"], correctAnswer: 1, category: "Security" },
     { id: 2, question: "What does SSL/TLS provide?", options: ["Load balancing", "Encrypted communication", "Caching", "Compression"], correctAnswer: 1, category: "Security" },
@@ -57,6 +58,7 @@ export const CAREER_SKILL_QUESTIONS: Record<string, SkillQuestion[]> = {
     { id: 9, question: "What is social engineering?", options: ["Software development", "Manipulating people for information", "Network design", "Database management"], correctAnswer: 1, category: "Security" },
     { id: 10, question: "What does VPN provide?", options: ["Faster internet", "Encrypted private connection", "Free storage", "Email service"], correctAnswer: 1, category: "Security" },
   ],
+
   "AI Engineer": [
     { id: 1, question: "What is a neural network?", options: ["Database", "Computing system inspired by brain", "Network protocol", "Storage system"], correctAnswer: 1, category: "ML" },
     { id: 2, question: "What does NLP stand for?", options: ["Natural Language Processing", "Neural Learning Protocol", "Network Layer Protocol", "Non-Linear Programming"], correctAnswer: 0, category: "ML" },
@@ -69,8 +71,60 @@ export const CAREER_SKILL_QUESTIONS: Record<string, SkillQuestion[]> = {
     { id: 9, question: "What does LLM stand for?", options: ["Large Language Model", "Low Level Module", "Linear Learning Method", "Long-term Memory"], correctAnswer: 0, category: "ML" },
     { id: 10, question: "What is overfitting in ML?", options: ["Model too simple", "Model memorizes training data", "Too little data", "Wrong algorithm"], correctAnswer: 1, category: "ML" },
   ],
+
+  "Architect": [
+    { id: 1, question: "What is a blueprint in architecture?", options: ["Final building", "Detailed building plan", "Construction material", "Style guide"], correctAnswer: 1, category: "Design" },
+    { id: 2, question: "Which software is commonly used for 3D modeling?", options: ["AutoCAD", "Photoshop", "Excel", "SQL"], correctAnswer: 0, category: "Technical" },
+    { id: 3, question: "What is sustainable design?", options: ["Cheap materials", "Environmentally friendly design", "Fast construction", "Luxury design"], correctAnswer: 1, category: "Design" },
+    { id: 4, question: "Which principle deals with balance in structures?", options: ["Symmetry", "Contrast", "Hierarchy", "Typography"], correctAnswer: 0, category: "Design" },
+    { id: 5, question: "What is BIM?", options: ["Building Information Modeling", "Basic Infrastructure Model", "Building Internal Management", "Blueprint Integration Method"], correctAnswer: 0, category: "Technical" },
+    { id: 6, question: "What is load-bearing wall?", options: ["Wall that supports weight", "Partition wall", "Decorative wall", "Glass wall"], correctAnswer: 0, category: "Technical" },
+    { id: 7, question: "What is a site plan?", options: ["Interior design plan", "Top-view layout of building site", "Electrical plan", "Furniture layout"], correctAnswer: 1, category: "Design" },
+    { id: 8, question: "What is facade in architecture?", options: ["Roof", "Front exterior of building", "Foundation", "Interior wall"], correctAnswer: 1, category: "Design" },
+    { id: 9, question: "Which material is sustainable?", options: ["Bamboo", "Plastic", "Concrete", "PVC"], correctAnswer: 0, category: "Design" },
+    { id: 10, question: "What is CAD used for?", options: ["Code writing", "Computer-aided design", "Marketing plan", "Budgeting"], correctAnswer: 1, category: "Technical" },
+  ],
+
+  "Product Manager": [
+    { id: 1, question: "What is a product roadmap?", options: ["Marketing plan", "Visual summary of product vision and timeline", "User manual", "Sales pitch"], correctAnswer: 1, category: "Management" },
+    { id: 2, question: "What does MVP stand for?", options: ["Most Valuable Product", "Minimum Viable Product", "Major Version Plan", "Maximum Value Proposition"], correctAnswer: 1, category: "Management" },
+    { id: 3, question: "What is backlog grooming?", options: ["Deleting old tasks", "Prioritizing and refining tasks", "Hiring team members", "Analyzing competitors"], correctAnswer: 1, category: "Process" },
+    { id: 4, question: "Which framework is used for agile product management?", options: ["Scrum", "Waterfall", "Lean Six Sigma", "PRINCE2"], correctAnswer: 0, category: "Process" },
+    { id: 5, question: "What is KPI in product management?", options: ["Key Performance Indicator", "Knowledge Process Integration", "Key Product Innovation", "Knowledge Performance Index"], correctAnswer: 0, category: "Management" },
+    { id: 6, question: "What is user story?", options: ["Technical spec", "Short description of user need", "Marketing content", "Bug report"], correctAnswer: 1, category: "Process" },
+    { id: 7, question: "What is feature prioritization?", options: ["Ranking features by importance", "Ignoring features", "Designing UI", "Coding feature"], correctAnswer: 0, category: "Process" },
+    { id: 8, question: "What is roadmap milestone?", options: ["Small task", "Significant project checkpoint", "Email notification", "Team meeting"], correctAnswer: 1, category: "Management" },
+    { id: 9, question: "Which tool is used for product management?", options: ["Jira", "Photoshop", "Excel", "AutoCAD"], correctAnswer: 0, category: "Technical" },
+    { id: 10, question: "What is stakeholder management?", options: ["Hiring staff", "Communicating with key stakeholders", "Coding backend", "Designing UI"], correctAnswer: 1, category: "Management" },
+  ],
+
+  "Entrepreneur": [
+    { id: 1, question: "What is a business plan?", options: ["Legal document", "Plan detailing business goals, strategy, and finance", "Marketing campaign", "HR policy"], correctAnswer: 1, category: "Business" },
+    { id: 2, question: "What is venture capital?", options: ["Personal savings", "Investment funding for startups", "Bank loan", "Crowdfunding"], correctAnswer: 1, category: "Finance" },
+    { id: 3, question: "What does ROI stand for?", options: ["Return on Investment", "Rate of Innovation", "Revenue of Industry", "Risk of Investment"], correctAnswer: 0, category: "Finance" },
+    { id: 4, question: "What is a startup pivot?", options: ["Company closure", "Major strategic shift in product or business model", "New hire process", "Marketing rebrand"], correctAnswer: 1, category: "Business" },
+    { id: 5, question: "Which skill is most important for entrepreneurs?", options: ["Coding", "Resilience and adaptability", "Data entry", "Graphic design"], correctAnswer: 1, category: "Soft Skill" },
+    { id: 6, question: "What is customer discovery?", options: ["Hiring customers", "Researching customer needs", "Marketing campaign", "Financial audit"], correctAnswer: 1, category: "Business" },
+    { id: 7, question: "What is bootstrapping?", options: ["Startup funded without external help", "Taking loans", "Hiring team", "Selling product"], correctAnswer: 0, category: "Finance" },
+    { id: 8, question: "What is product-market fit?", options: ["Perfect marketing strategy", "Alignment of product with market demand", "Financial plan", "Team structure"], correctAnswer: 1, category: "Business" },
+    { id: 9, question: "What is scaling?", options: ["Growing business operations efficiently", "Marketing campaign", "Coding process", "Team onboarding"], correctAnswer: 0, category: "Business" },
+    { id: 10, question: "What is lean startup methodology?", options: ["Fast experimentation with minimal resources", "Detailed business plan", "Strict management hierarchy", "Marketing strategy"], correctAnswer: 0, category: "Process" },
+  ],
+
+  "Content Designer": [
+    { id: 1, question: "What is content strategy?", options: ["Creating visuals only", "Planning, creating, and managing content", "Social media posting", "Ad campaign"], correctAnswer: 1, category: "Strategy" },
+    { id: 2, question: "Which tool is used for prototyping content?", options: ["Figma", "Excel", "Python", "AutoCAD"], correctAnswer: 0, category: "Technical" },
+    { id: 3, question: "What is microcopy?", options: ["Small pieces of text guiding users", "Short videos", "Icons", "Images"], correctAnswer: 0, category: "UX" },
+    { id: 4, question: "What does readability mean?", options: ["Ease of reading text", "Color contrast", "Font size only", "Design layout"], correctAnswer: 0, category: "UX" },
+    { id: 5, question: "Which principle ensures consistent messaging?", options: ["Tone of voice", "Font choice", "Contrast", "Layout grid"], correctAnswer: 0, category: "Strategy" },
+    { id: 6, question: "What is content audit?", options: ["Analyzing and evaluating existing content", "Creating new graphics", "Coding content", "Marketing campaign"], correctAnswer: 0, category: "Process" },
+    { id: 7, question: "What is user-centered content?", options: ["Content focused on user needs", "Content focused on company only", "Random content", "Content for SEO only"], correctAnswer: 0, category: "UX" },
+    { id: 8, question: "What is CTA in content design?", options: ["Call to Action", "Content Template Assignment", "Creative Text Analysis", "Customer Tracking Analytics"], correctAnswer: 0, category: "UX" },
+    { id: 9, question: "Which element improves accessibility?", options: ["Alt text for images", "Fancy fonts", "Long paragraphs", "Hidden content"], correctAnswer: 0, category: "UX" },
+    { id: 10, question: "What is content governance?", options: ["Rules and process for managing content", "Graphic design only", "Marketing campaign", "Coding standards"], correctAnswer: 0, category: "Process" },
+  ],
 };
 
 export function getSkillQuestionsForCareer(career: string): SkillQuestion[] {
-  return CAREER_SKILL_QUESTIONS[career] || SOFTWARE_ENGINEER_QUESTIONS;
+  return CAREER_SKILL_QUESTIONS[career] || [];
 }

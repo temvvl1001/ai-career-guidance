@@ -112,6 +112,7 @@ body {
     );
   background-attachment: fixed;
   min-height: 100vh;
+  cursor: default;
 }
 
 h1,
@@ -127,6 +128,12 @@ h6,
 
 ::selection {
   background: rgb(var(--accent) / 0.25);
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  cursor: text;
 }
 
 @layer utilities {

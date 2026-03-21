@@ -26,7 +26,7 @@ export default function CareerCard({
     <div className="group relative overflow-hidden p-6 rounded-2xl bg-dark-800/60 border border-dark-600 transition-all duration-300 hover:-translate-y-1 hover:border-accent-purple/70 hover:shadow-[0_22px_45px_-30px_rgb(var(--accent-purple)_/_0.45)] before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(120%_120%_at_100%_0%,rgb(var(--accent-purple)_/_0.18),transparent_60%)] before:opacity-0 before:transition-opacity before:duration-300 group-hover:before:opacity-100">
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <h3 className="text-lg font-semibold text-black group-hover:text-accent-purple transition-colors">
+          <h3 className="text-lg font-semibold text-dark-100 group-hover:text-accent-purple transition-colors">
             {career.name}
           </h3>
           <span

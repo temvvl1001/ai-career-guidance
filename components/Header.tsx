@@ -31,7 +31,6 @@ export default function Header() {
     () => [
       { href: "/", label: isMn ? "Нүүр" : "Home" },
       { href: "/dashboard", label: isMn ? "Хяналтын самбар" : "Dashboard" },
-      { href: "/test", label: isMn ? "Хувь хүний тест" : "Personality Test" },
       { href: "/results", label: isMn ? "Үр дүн" : "Results" },
     ],
     [isMn]

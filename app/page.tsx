@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import LoginPopup from "@/components/LoginPopup";
 import CareerCard from "@/components/CareerCard";
 import { Sparkles, Target, BarChart3, Brain } from "lucide-react";
 import { useUiStore } from "@/store/ui-store";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function LandingPage() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [careers, setCareers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { user } = useAuthStore();
   const { language } = useUiStore();
   const isMn = language === "mn";
 
@@ -23,6 +27,19 @@ export default function LandingPage() {
         setLoading(false);
       });
   }, [language]);
+
+  const handleStartTest = () => {
+    if (user) {
+      router.push("/test");
+      return;
+    }
+    setLoginOpen(true);
+  };
+
+  const handleLoginSuccess = () => {
+    setLoginOpen(false);
+    router.push("/test");
+  };
 
   return (
     <>
@@ -46,7 +63,7 @@ export default function LandingPage() {
                   : "Take our personality test, get AI-powered career recommendations, and build the skills you need to succeed."}
               </p>
               <button
-                onClick={() => setLoginOpen(true)}
+                onClick={handleStartTest}
                 className="px-8 py-4 rounded-xl bg-primary text-white font-semibold text-lg hover:bg-primary-hover transition-all hover:scale-105 shadow-lg shadow-primary/25 animate-slide-up"
               >
                 {isMn ? "Тест Эхлүүлэх" : "Start Career Test"}
@@ -142,7 +159,7 @@ export default function LandingPage() {
             </div>
             <div className="text-center mt-12">
               <button
-                onClick={() => setLoginOpen(true)}
+                onClick={handleStartTest}
                 className="px-8 py-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary-hover transition-colors"
               >
                 {isMn ? "Тест Эхлүүлэх" : "Start Career Test"}
@@ -166,7 +183,7 @@ export default function LandingPage() {
       <LoginPopup
         isOpen={loginOpen}
         onClose={() => setLoginOpen(false)}
-        onSuccess={() => (window.location.href = "/dashboard")}
+        onSuccess={handleLoginSuccess}
       />
     </>
   );
