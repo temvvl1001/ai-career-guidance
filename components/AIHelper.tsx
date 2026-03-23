@@ -266,7 +266,7 @@ export default function AIHelper({
                     className={`max-w-[80%] p-3 rounded-xl ${
                       m.role === "user"
                         ? "bg-accent-purple/30"
-                        : "bg-dark-700"
+                        : "bg-slate-100 border border-slate-200 text-slate-700 dark:bg-dark-700 dark:border-dark-600 dark:text-dark-100"
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{m.content}</p>
@@ -279,8 +279,8 @@ export default function AIHelper({
               {loading && (
                 <div className="flex gap-3">
                   <Bot className="w-6 h-6 text-accent-purple flex-shrink-0" />
-                  <div className="p-3 rounded-xl bg-dark-700">
-                    <p className="text-sm text-dark-400">Thinking...</p>
+                  <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 dark:bg-dark-700 dark:border-dark-600 dark:text-dark-100">
+                    <p className="text-sm text-slate-500 dark:text-dark-400">Thinking...</p>
                   </div>
                 </div>
               )}
@@ -354,7 +354,9 @@ export default function AIHelper({
             )}
             <div
               className={`max-w-[85%] p-3 rounded-xl ${
-                m.role === "user" ? "bg-accent-purple/30" : "bg-dark-700"
+                m.role === "user"
+                  ? "bg-accent-purple/30"
+                  : "bg-slate-100 border border-slate-200 text-slate-700 dark:bg-dark-700 dark:border-dark-600 dark:text-dark-100"
               }`}
             >
               <p className="text-sm whitespace-pre-wrap">{m.content}</p>
@@ -367,8 +369,8 @@ export default function AIHelper({
         {loading && (
           <div className="flex gap-3">
             <Bot className="w-5 h-5 text-accent-purple flex-shrink-0" />
-            <div className="p-3 rounded-xl bg-dark-700">
-              <p className="text-sm text-dark-400">Thinking...</p>
+            <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 dark:bg-dark-700 dark:border-dark-600 dark:text-dark-100">
+              <p className="text-sm text-slate-500 dark:text-dark-400">Thinking...</p>
             </div>
           </div>
         )}
