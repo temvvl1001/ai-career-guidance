@@ -68,7 +68,7 @@ export default function CareerCard({
         {showSkillTest && (
           <Link
             href={`/skills?career=${encodeURIComponent(career.name)}`}
-            className="block w-full py-2 text-center rounded-lg bg-accent-purple/20 text-accent-purple font-medium hover:bg-accent-purple/30 transition-colors"
+            className="block w-full py-2 text-center rounded-lg bg-accent-purple/20 text-accent-purple dark:text-white font-medium hover:bg-accent-purple/30 transition-colors"
           >
             Take Skill Test
           </Link>

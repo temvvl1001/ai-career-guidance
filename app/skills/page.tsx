@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState, Suspense } from "react";
 import Header from "@/components/Header";
 import SkillTest from "@/components/SkillTest";
-import AIHelper from "@/components/AIHelper";
 import { getSkillQuestionsForCareer, SkillQuestion } from "@/lib/skill-questions";
 import { useSearchParams } from "next/navigation";
 
@@ -161,12 +160,28 @@ function SkillsContent() {
     await generateAdvice(finalScore);
   };
 
-  if (loading || !skillStateReady || questions.length === 0) {
+  if (loading || !skillStateReady) {
     return (
       <>
         <Header />
         <main className="pt-24 flex items-center justify-center min-h-screen">
           <div className="animate-pulse text-dark-400">Loading...</div>
+        </main>
+      </>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <>
+        <Header />
+        <main className="pt-24 min-h-screen">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+            <h1 className="text-2xl font-bold mb-3">Skill Test Unavailable</h1>
+            <p className="text-dark-400">
+              We do not have a skill test for "{career}" yet.
+            </p>
+          </div>
         </main>
       </>
     );
@@ -202,7 +217,7 @@ function SkillsContent() {
               <div className="p-8 rounded-2xl bg-dark-800/50 border border-dark-600 mb-8">
                 <h2 className="text-xl font-semibold mb-4">AI Learning Roadmap</h2>
                 <div
-                  className="text-dark-300 whitespace-pre-wrap leading-relaxed [&_strong]:text-white"
+                  className="text-dark-300 whitespace-pre-wrap leading-relaxed [&_strong]:text-dark-100 dark:[&_strong]:text-white"
                   dangerouslySetInnerHTML={{
                     __html: advice
                       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -211,8 +226,6 @@ function SkillsContent() {
                 />
               </div>
             ) : null}
-
-            <AIHelper career={career} personalityType={mbtiType || undefined} />
 
             <div className="mt-8 text-center">
               <button
@@ -224,7 +237,7 @@ function SkillsContent() {
                   setAdvice(null);
                   setLoadingAdvice(false);
                 }}
-                className="px-6 py-3 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors"
+                className="px-6 py-3 rounded-lg border border-accent-purple/40 text-accent-purple bg-white/70 hover:bg-accent-purple/10 transition-colors dark:bg-dark-800/60 dark:text-dark-100 dark:border-dark-600 dark:hover:bg-dark-700"
               >
                 Retake Test
               </button>

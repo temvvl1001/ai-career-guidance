@@ -19,6 +19,7 @@ interface MBTITestProps {
 export default function MBTITest({ onComplete }: MBTITestProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [direction, setDirection] = useState<"next" | "prev">("next");
 
   const question = MBTI_QUESTIONS[currentIndex];
   const progress = ((currentIndex + 1) / MBTI_QUESTIONS.length) * 100;
@@ -28,6 +29,7 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
     setAnswers(newAnswers);
 
     if (currentIndex < MBTI_QUESTIONS.length - 1) {
+      setDirection("next");
       setCurrentIndex(currentIndex + 1);
     } else {
       const answerArray = Object.entries(newAnswers).map(([id, val]) => ({
@@ -39,8 +41,16 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
   };
 
   const handleBack = () => {
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+    if (currentIndex > 0) {
+      setDirection("prev");
+      setCurrentIndex(currentIndex - 1);
+    }
   };
+
+  const cardAnimation =
+    direction === "next"
+      ? "motion-safe:animate-question-next"
+      : "motion-safe:animate-question-prev";
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -57,7 +67,10 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
         </div>
       </div>
 
-      <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 animate-fade-in">
+      <div
+        key={question.id}
+        className={`p-6 rounded-2xl bg-dark-800/50 border border-dark-600 transform-gpu will-change-transform ${cardAnimation}`}
+      >
         <p className="text-lg text-dark-100 mb-6">{question.question}</p>
 
         <div className="space-y-3">

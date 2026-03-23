@@ -14,6 +14,7 @@ export default function SkillTest({ questions, career, onComplete }: SkillTestPr
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [showResult, setShowResult] = useState(false);
+  const [direction, setDirection] = useState<"next" | "prev">("next");
 
   const question = questions[currentIndex];
   const progress = ((currentIndex + (answers[question?.id] !== undefined ? 1 : 0)) / questions.length) * 100;
@@ -23,6 +24,7 @@ export default function SkillTest({ questions, career, onComplete }: SkillTestPr
     setAnswers(newAnswers);
 
     if (currentIndex < questions.length - 1) {
+      setDirection("next");
       setCurrentIndex(currentIndex + 1);
     } else {
       setShowResult(true);
@@ -41,10 +43,18 @@ export default function SkillTest({ questions, career, onComplete }: SkillTestPr
   };
 
   const handleBack = () => {
-    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+    if (currentIndex > 0) {
+      setDirection("prev");
+      setCurrentIndex(currentIndex - 1);
+    }
   };
 
   if (showResult) return null;
+
+  const cardAnimation =
+    direction === "next"
+      ? "motion-safe:animate-question-next"
+      : "motion-safe:animate-question-prev";
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -62,7 +72,10 @@ export default function SkillTest({ questions, career, onComplete }: SkillTestPr
         </div>
       </div>
 
-      <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 animate-fade-in">
+      <div
+        key={question.id}
+        className={`p-6 rounded-2xl bg-dark-800/50 border border-dark-600 transform-gpu will-change-transform ${cardAnimation}`}
+      >
         <span className="text-xs text-accent-purple font-medium">{question.category}</span>
         <p className="text-lg text-dark-100 mt-2 mb-6">{question.question}</p>
 
@@ -86,7 +99,7 @@ export default function SkillTest({ questions, career, onComplete }: SkillTestPr
           <button
             onClick={handleBack}
             disabled={currentIndex === 0}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-700 text-dark-100 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:border-dark-600 dark:bg-dark-700 dark:text-dark-100 dark:hover:bg-dark-600"
           >
             <ChevronLeft className="w-4 h-4" />
             Back

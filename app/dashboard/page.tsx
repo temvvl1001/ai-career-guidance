@@ -111,7 +111,7 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/test"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-purple/20 text-accent-purple font-medium hover:bg-accent-purple/30 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-purple/20 text-accent-purple dark:text-white font-medium hover:bg-accent-purple/30 transition-colors"
                 >
                   {mbtiType ? "Retake" : "Start"}
                   <ChevronRight className="w-4 h-4" />
@@ -135,7 +135,7 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="/preferences"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue font-medium hover:bg-accent-blue/30 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent-blue/20 text-accent-blue dark:text-white font-medium hover:bg-accent-blue/30 transition-colors"
                 >
                   Start
                   <ChevronRight className="w-4 h-4" />

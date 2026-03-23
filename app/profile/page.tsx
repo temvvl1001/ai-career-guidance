@@ -186,24 +186,39 @@ export default function ProfilePage() {
     const lines = cleaned
       .split("\n")
       .map((line) => line.trim())
-      .filter(Boolean);
-    const bulletLines = lines.filter(
-      (line) => line.startsWith("-") || line.startsWith("*") || line.startsWith("•")
-    );
-    const normalizeBullet = (line: string) => {
-      const stripped = line.replace(/^[-*•]\s*/, "");
-      const words = stripped.split(/\s+/).filter(Boolean);
-      const trimmed = words.slice(0, 18).join(" ");
-      return `- ${trimmed}${words.length > 18 ? "..." : ""}`;
-    };
+      .filter(Boolean)
+      .map((line) =>
+        line
+          .replace(/^#{1,6}\s+/, "")
+          .replace(/^[-*\u2022]\s*/, "")
+      );
 
-    if (bulletLines.length > 0) {
-      return bulletLines.slice(0, 4).map(normalizeBullet).join("\n");
+    const sentenceCandidates = lines.flatMap((line) => {
+      const matches = line.match(/[^.!?]+[.!?]+|[^.!?]+$/g);
+      return matches ? matches.map((sentence) => sentence.trim()).filter(Boolean) : [];
+    });
+
+    const MAX_SENTENCES = 3;
+    const MAX_WORDS = 70;
+
+    const summary: string[] = [];
+    let wordCount = 0;
+
+    for (const sentence of sentenceCandidates) {
+      if (summary.length >= MAX_SENTENCES) break;
+      const words = sentence.split(/\s+/).filter(Boolean);
+      if (summary.length > 0 && wordCount + words.length > MAX_WORDS) {
+        break;
+      }
+      summary.push(sentence);
+      wordCount += words.length;
     }
 
-    const words = cleaned.split(/\s+/).filter(Boolean);
-    const snippet = words.slice(0, 80).join(" ");
-    return `- ${snippet}${words.length > 80 ? "..." : ""}`;
+    if (summary.length === 0 && sentenceCandidates.length > 0) {
+      summary.push(sentenceCandidates[0]);
+    }
+
+    return summary.join("\n");
   };
 
   // Сонгосон карьерын AI анализыг нэг удаа татаж, state-д хадгална.
@@ -376,10 +391,10 @@ export default function ProfilePage() {
                   <Edit className="w-4 h-4" />
                 </button>
               )}
-              <div className="flex flex-col gap-6 justify-center flex-1">
+              <div className="flex flex-col gap-6 justify-center flex-1 min-w-0 w-full">
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-4 sm:gap-6 min-w-0 w-full pr-24 sm:pr-28">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-dark-800 flex items-center justify-center overflow-hidden border border-dark-700">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 flex-none rounded-full bg-white border border-slate-200 flex items-center justify-center overflow-hidden dark:bg-dark-800 dark:border-dark-700">
                       {avatarSrc ? (
                         <img
                           src={avatarSrc}
@@ -412,8 +427,8 @@ export default function ProfilePage() {
 
                 {isEditing && (
                   <>
-                    <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
-                      <div className="w-full max-w-[320px] md:max-w-md">
+                  <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end w-full min-w-0">
+                      <div className="w-full min-w-0">
                         <label
                           htmlFor="profile-name"
                           className="block text-sm font-medium text-dark-200 mb-2"
@@ -426,12 +441,12 @@ export default function ProfilePage() {
                           value={nameDraft}
                           onChange={(event) => setNameDraft(event.target.value)}
                           placeholder="Add a display name"
-                          className="w-full px-4 py-3 rounded-lg bg-dark-950 border border-dark-700 text-dark-100 focus:border-ai focus:ring-1 focus:ring-ai outline-none transition-colors"
+                          className="w-full px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-ai focus:ring-1 focus:ring-ai outline-none transition-colors dark:bg-dark-950 dark:border-dark-700 dark:text-dark-100"
                         />
                       </div>
 
-                      <div className="flex flex-wrap gap-2 w-full md:w-auto md:justify-end">
-                        <label className="px-4 py-3 rounded-lg bg-dark-950 border border-dark-700 text-dark-200 text-sm font-medium cursor-pointer hover:border-ai transition-colors">
+                      <div className="flex flex-wrap gap-2 w-full md:w-auto md:justify-end md:pr-2">
+                        <label className="px-4 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 text-sm font-medium cursor-pointer hover:border-ai transition-colors dark:bg-dark-950 dark:border-dark-700 dark:text-dark-200">
                           Upload photo
                           <input
                             type="file"
@@ -452,7 +467,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={handleEditCancel}
-                          className="px-4 py-3 rounded-lg border border-dark-700 text-dark-400 text-sm font-medium hover:text-dark-100 hover:border-dark-600 transition-colors"
+                          className="px-4 py-3 rounded-lg border border-slate-200 bg-white text-slate-500 text-sm font-medium hover:text-slate-700 hover:border-slate-300 transition-colors dark:bg-transparent dark:border-dark-700 dark:text-dark-400 dark:hover:text-dark-100 dark:hover:border-dark-600"
                         >
                           Cancel
                         </button>
@@ -699,6 +714,10 @@ export default function ProfilePage() {
                             <h3 className="text-sm font-semibold text-dark-100 mb-3">
                               AI Analysis
                             </h3>
+                            <p className="text-xs text-dark-400 mb-3">
+                              Short AI summary based on your latest score and personality.
+                              Pay attention to the key gaps and next steps.
+                            </p>
                             {adviceState?.loading ? (
                               <p className="text-dark-400 text-sm">
                                 Generating AI analysis...

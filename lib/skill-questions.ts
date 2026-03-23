@@ -1,3 +1,5 @@
+import { ALL_CAREERS } from "@/lib/career-data";
+
 export interface SkillQuestion {
   id: number;
   question: string;
@@ -125,6 +127,149 @@ export const CAREER_SKILL_QUESTIONS: Record<string, SkillQuestion[]> = {
   ],
 };
 
+const CAREER_SKILL_ALIASES: Record<string, string> = {
+  "Systems Architect": "Architect",
+  "Tech Entrepreneur": "Entrepreneur",
+  "UX Researcher": "UI/UX Designer",
+  "Research Scientist": "Data Scientist",
+};
+
+const FALLBACK_DISTRACTOR_SKILLS = [
+  "Accounting",
+  "Budgeting",
+  "Business Analysis",
+  "Copywriting",
+  "Customer Support",
+  "Data Entry",
+  "Legal Compliance",
+  "Payroll",
+  "Procurement",
+  "Project Planning",
+  "Public Speaking",
+  "Quality Assurance",
+  "Sales Pipeline",
+  "SEO",
+  "Supply Chain",
+  "UX Writing",
+  "Video Editing",
+];
+
+const GENERAL_FALLBACK_QUESTIONS: Array<Omit<SkillQuestion, "id">> = [
+  {
+    question: "Which action best supports consistent improvement in any role?",
+    options: [
+      "Review feedback and iterate regularly",
+      "Avoid feedback to stay confident",
+      "Change goals every week",
+      "Ignore metrics and focus on speed",
+    ],
+    correctAnswer: 0,
+    category: "Professional",
+  },
+  {
+    question: "When priorities conflict, what is the best approach?",
+    options: [
+      "Confirm priorities with stakeholders and align on trade-offs",
+      "Do everything at once without updating anyone",
+      "Pause all tasks until it resolves itself",
+      "Ignore the higher-impact work",
+    ],
+    correctAnswer: 0,
+    category: "Professional",
+  },
+  {
+    question: "Which habit most improves team collaboration?",
+    options: [
+      "Clear communication and regular updates",
+      "Working in isolation",
+      "Hiding blockers until the end",
+      "Skipping documentation entirely",
+    ],
+    correctAnswer: 0,
+    category: "Professional",
+  },
+];
+
+const normalizeValue = (value: string) => value.trim().toLowerCase();
+
+const hashString = (value: string) => {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  }
+  return hash || 1;
+};
+
+const shuffleWithSeed = <T,>(items: T[], seed: number) => {
+  const result = [...items];
+  let state = seed >>> 0;
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    const j = state % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+};
+
+const pickWithSeed = <T,>(items: T[], count: number, seed: number) =>
+  shuffleWithSeed(items, seed).slice(0, Math.min(count, items.length));
+
+const CORE_SKILL_TEMPLATES = [
+  (career: string) => `Which of these is a core skill for a ${career}?`,
+  (career: string) => `Which skill is most essential for a ${career} role?`,
+  (career: string) => `A ${career} relies heavily on which ability?`,
+];
+
+const buildFallbackQuestions = (careerName: string): SkillQuestion[] => {
+  const career = ALL_CAREERS.find(
+    (item) => normalizeValue(item.name) === normalizeValue(careerName)
+  );
+  if (!career) return [];
+
+  const coreSkills =
+    career.requiredSkills?.length > 0
+      ? career.requiredSkills
+      : ["Problem Solving", "Communication", "Teamwork"];
+
+  const normalizedCore = new Set(coreSkills.map(normalizeValue));
+  const distractors = FALLBACK_DISTRACTOR_SKILLS.filter(
+    (skill) => !normalizedCore.has(normalizeValue(skill))
+  );
+  const seed = hashString(careerName);
+
+  const questions: SkillQuestion[] = coreSkills.map((skill, index) => {
+    const picks = pickWithSeed(distractors, 3, seed + index * 11);
+    const options = shuffleWithSeed([skill, ...picks], seed + index * 17);
+    return {
+      id: index + 1,
+      question: CORE_SKILL_TEMPLATES[index % CORE_SKILL_TEMPLATES.length](
+        careerName
+      ),
+      options,
+      correctAnswer: options.indexOf(skill),
+      category: "Core Skills",
+    };
+  });
+
+  const generalStartId = questions.length + 1;
+  GENERAL_FALLBACK_QUESTIONS.forEach((question, index) => {
+    questions.push({
+      id: generalStartId + index,
+      ...question,
+    });
+  });
+
+  return questions;
+};
+
 export function getSkillQuestionsForCareer(career: string): SkillQuestion[] {
-  return CAREER_SKILL_QUESTIONS[career] || [];
+  const direct = CAREER_SKILL_QUESTIONS[career];
+  if (direct?.length) return direct;
+
+  const alias = CAREER_SKILL_ALIASES[career];
+  if (alias && CAREER_SKILL_QUESTIONS[alias]?.length) {
+    return CAREER_SKILL_QUESTIONS[alias];
+  }
+
+  return buildFallbackQuestions(career);
 }
