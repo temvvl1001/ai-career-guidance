@@ -303,7 +303,7 @@ export default function AIHelper({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="p-2 rounded-lg bg-accent-purple hover:bg-accent-purple/80 disabled:opacity-50"
+                  className="p-2 rounded-lg bg-accent-purple text-white hover:bg-accent-purple/80 disabled:opacity-50 shadow-sm"
                 >
                   <Send className="w-5 h-5" />
                 </button>
@@ -392,7 +392,7 @@ export default function AIHelper({
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-3 rounded-lg bg-accent-purple hover:bg-accent-purple/80 disabled:opacity-50 font-medium"
+          className="px-4 py-3 rounded-lg bg-accent-purple text-white hover:bg-accent-purple/80 disabled:opacity-50 font-medium shadow-sm"
         >
           Send
         </button>
