@@ -180,7 +180,7 @@ export default function PreferencesPage() {
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600 space-y-6">
+          <div className="p-6 rounded-2xl bg-dark-800/50 border border-slate-200 dark:border-dark-600 space-y-6">
             <div>
               <h2 className="text-lg font-semibold mb-3">Interests</h2>
               <div className="flex flex-wrap gap-2 mb-4">
@@ -194,7 +194,7 @@ export default function PreferencesPage() {
                       className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                         active
                           ? "bg-accent-purple text-white"
-                          : "bg-dark-700 text-dark-300 hover:bg-dark-600"
+                          : "bg-dark-700 text-dark-300 hover:bg-dark-600 border border-slate-400/30"
                       }`}
                     >
                       {option}
