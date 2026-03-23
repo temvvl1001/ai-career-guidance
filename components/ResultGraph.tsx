@@ -122,7 +122,7 @@ export default function ResultGraph({
                   stroke="#60a5fa"
                   fill="#60a5fa"
                   fillOpacity={0.4}
-                  dot={(props) => {
+                  dot={(props): any => {
                     const trait = props?.payload?.trait as string | undefined;
                     const isDominant = trait ? dominantTraits.has(trait) : false;
                     if (props.cx == null || props.cy == null) return null;
