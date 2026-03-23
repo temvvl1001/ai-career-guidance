@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { Languages, LogOut, Menu, Moon, Sun, User } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { LogOut, Menu, Moon, Settings, Sun, User } from "lucide-react";
 
 import AIHelper from "@/components/AIHelper";
 import { useAuthStore } from "@/store/auth-store";
@@ -12,11 +12,17 @@ import { useUiStore } from "@/store/ui-store";
 export default function Header() {
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
-  const { language, theme, toggleLanguage, toggleTheme } = useUiStore();
+  const { language, theme, setLanguage, setTheme } = useUiStore();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const settingsPanelRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -25,6 +31,34 @@ export default function Header() {
     if (theme === "dark") root.classList.add("dark");
     else root.classList.remove("dark");
   }, [theme]);
+
+  useEffect(() => {
+    if (!profileOpen && !settingsOpen && !menuOpen) return;
+
+    const handleOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      const inProfile = profileRef.current?.contains(target);
+      const inSettings =
+        settingsButtonRef.current?.contains(target) ||
+        settingsPanelRef.current?.contains(target);
+      const inMenu =
+        menuButtonRef.current?.contains(target) ||
+        menuPanelRef.current?.contains(target);
+
+      if (inProfile || inSettings || inMenu) return;
+
+      setProfileOpen(false);
+      setSettingsOpen(false);
+      setMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [menuOpen, profileOpen, settingsOpen]);
 
   const isMn = language === "mn";
   const navLinks = useMemo(
@@ -75,9 +109,12 @@ export default function Header() {
 
             <div className="flex items-center gap-3">
               {user ? (
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                   <button
-                    onClick={() => setProfileOpen((v) => !v)}
+                    onClick={() => {
+                      setProfileOpen((v) => !v);
+                      setSettingsOpen(false);
+                    }}
                     className="flex items-center gap-2 p-2 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors"
                   >
                     <User className="w-5 h-5 text-accent-purple" />
@@ -116,31 +153,134 @@ export default function Header() {
                 </Link>
               )}
 
-              <button
-                onClick={toggleLanguage}
-                className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-dark-800 hover:bg-dark-700 text-xs text-dark-200 transition-colors"
-              >
-                <Languages className="w-3 h-3" />
-                <span>{isMn ? "MN" : "EN"}</span>
-              </button>
+              <div className="relative">
+                <button
+                  ref={settingsButtonRef}
+                  onClick={() => {
+                    setSettingsOpen((v) => !v);
+                    setProfileOpen(false);
+                  }}
+                  className="p-2 rounded-full transition-colors"
+                  aria-label={isMn ? "Тохиргоо" : "Settings"}
+                  title={isMn ? "Тохиргоо" : "Settings"}
+                >
+                  <Settings className="w-4 h-4 text-accent-purple" />
+                </button>
 
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-lg bg-dark-800 hover:bg-dark-700 transition-colors"
-                aria-label={
-                  theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
-                }
-              >
-                {theme === "dark" ? (
-                  <Sun className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <Moon className="w-4 h-4 text-accent-blue" />
+                {settingsOpen && (
+                  <div
+                    className="fixed inset-0 z-[70]"
+                    onClick={() => setSettingsOpen(false)}
+                  >
+                    <div
+                      ref={settingsPanelRef}
+                      className="absolute inset-y-0 right-0 w-[min(90vw,22rem)] h-[100dvh] bg-white text-slate-800 border-l border-slate-200 shadow-2xl p-5 dark:bg-dark-900 dark:text-dark-100 dark:border-dark-700"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-dark-700">
+                        <div className="text-lg font-semibold">
+                          {isMn ? "Тохиргоо" : "Settings"}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSettingsOpen(false)}
+                          className="p-2 rounded-lg hover:bg-dark-800 transition-colors"
+                          aria-label={isMn ? "Хаах" : "Close"}
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div className="mt-5 space-y-4">
+                        <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 dark:border-dark-700 dark:bg-dark-950/60">
+                          <div>
+                            <div className="text-sm font-medium text-slate-800 dark:text-dark-100">
+                              {isMn ? "Хэл" : "Language"}
+                            </div>
+                            <div className="text-xs text-slate-500 dark:text-dark-400">
+                              {isMn ? "Монгол (MN)" : "English (EN)"}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={language === "mn"}
+                            aria-label={isMn ? "Хэл солих" : "Toggle language"}
+                            onClick={() =>
+                              setLanguage(language === "mn" ? "en" : "mn")
+                            }
+                            className={`relative inline-flex h-7 w-12 items-center rounded-full border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-purple/60 ${
+                              language === "mn"
+                                ? "bg-gradient-to-r from-accent-purple to-accent-blue border-transparent shadow-[0_0_0_1px_rgba(139,92,246,0.45)]"
+                                : "bg-slate-200 border-slate-300 shadow-inner dark:bg-dark-900/70 dark:border-dark-600"
+                            }`}
+                          >
+                            <span
+                              className={`inline-flex h-6 w-6 transform items-center justify-center rounded-full bg-white text-[11px] font-bold leading-none text-slate-900 shadow-md transition-transform duration-200 ${
+                                language === "mn" ? "translate-x-5" : "translate-x-1"
+                              }`}
+                            >
+                              {language === "mn" ? "MN" : "EN"}
+                            </span>
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 dark:border-dark-700 dark:bg-dark-950/60">
+                          <div>
+                            <div className="text-sm font-medium text-slate-800 dark:text-dark-100">
+                              {isMn ? "Өнгөний горим" : "Theme"}
+                            </div>
+                            <div className="text-xs text-slate-500 dark:text-dark-400">
+                              {theme === "dark"
+                                ? isMn
+                                  ? "Хар"
+                                  : "Dark"
+                                : isMn
+                                  ? "Гэрэл"
+                                  : "Light"}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            role="switch"
+                            aria-checked={theme === "dark"}
+                            aria-label={isMn ? "Өнгө солих" : "Toggle theme"}
+                            onClick={() =>
+                              setTheme(theme === "dark" ? "light" : "dark")
+                            }
+                            className={`relative inline-flex h-7 w-12 items-center rounded-full border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-purple/60 ${
+                              theme === "dark"
+                                ? "bg-gradient-to-r from-accent-purple to-accent-blue border-transparent shadow-[0_0_0_1px_rgba(139,92,246,0.45)]"
+                                : "bg-slate-200 border-slate-300 shadow-inner dark:bg-dark-900/70 dark:border-dark-600"
+                            }`}
+                          >
+                            <span
+                              className={`inline-flex h-6 w-6 transform items-center justify-center rounded-full bg-white shadow-md transition-transform duration-200 ${
+                                theme === "dark" ? "translate-x-5" : "translate-x-1"
+                              }`}
+                            >
+                              {theme === "dark" ? (
+                                <Moon className="w-3 h-3 text-slate-700" />
+                              ) : (
+                                <Sun className="w-3 h-3 text-amber-500" />
+                              )}
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </button>
+              </div>
 
               <button
+                ref={menuButtonRef}
                 className="md:hidden p-2 rounded-lg hover:bg-dark-700 transition-colors"
-                onClick={() => setMenuOpen((v) => !v)}
+                onClick={() => {
+                  setMenuOpen((v) => !v);
+                  setSettingsOpen(false);
+                  setProfileOpen(false);
+                }}
                 aria-label="Open menu"
               >
                 <Menu className="w-5 h-5" />
@@ -149,7 +289,10 @@ export default function Header() {
           </div>
 
           {menuOpen && (
-            <div className="md:hidden py-4 border-t border-dark-700">
+            <div
+              ref={menuPanelRef}
+              className="md:hidden py-4 border-t border-dark-700"
+            >
               <nav className="flex flex-col gap-2">
                 {navLinks.map((link) => (
                   <Link

@@ -19,73 +19,11 @@ interface AIHelperProps {
 }
 
 const BotHeadIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 64 64"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <rect
-      x="10"
-      y="10"
-      width="44"
-      height="36"
-      rx="16"
-      fill="rgb(var(--dark-950))"
-      stroke="rgb(var(--dark-300))"
-      strokeWidth="2"
-    />
-    <rect
-      x="17"
-      y="17"
-      width="30"
-      height="22"
-      rx="9"
-      fill="rgb(var(--primary))"
-      fillOpacity="0.18"
-      stroke="rgb(var(--primary))"
-      strokeOpacity="0.35"
-    />
-    <circle cx="22" cy="28" r="5.5" fill="rgb(var(--primary))" />
-    <circle cx="42" cy="28" r="5.5" fill="rgb(var(--primary))" />
-    <circle cx="22" cy="28" r="2.3" fill="rgb(var(--background))" />
-    <circle cx="42" cy="28" r="2.3" fill="rgb(var(--background))" />
-    <path
-      d="M25 35c2.2 2.6 11.8 2.6 14 0"
-      stroke="rgb(var(--primary))"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-    />
-    <circle
-      cx="6.5"
-      cy="28"
-      r="6"
-      fill="rgb(var(--primary))"
-      fillOpacity="0.75"
-      stroke="rgb(var(--dark-300))"
-      strokeWidth="2"
-    />
-    <circle
-      cx="57.5"
-      cy="28"
-      r="6"
-      fill="rgb(var(--primary))"
-      fillOpacity="0.75"
-      stroke="rgb(var(--dark-300))"
-      strokeWidth="2"
-    />
-    <line
-      x1="32"
-      y1="8"
-      x2="32"
-      y2="4"
-      stroke="rgb(var(--primary))"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <circle cx="32" cy="4" r="3" fill="rgb(var(--primary))" />
-  </svg>
+  <img
+    src="/robot.png"
+    alt="AI Assistant"
+    className={`block object-cover ${className ?? ""}`}
+  />
 );
 
 // API-аас ирсэн мессежийн бүтэц зөв эсэхийг шалгана.
@@ -296,7 +234,7 @@ export default function AIHelper({
           <div className="w-[min(24rem,calc(100vw-2rem))] h-[min(500px,calc(100vh-8rem))] rounded-2xl bg-dark-800 border border-dark-600 shadow-2xl flex flex-col overflow-hidden">
             <div className="p-4 border-b border-dark-600 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BotHeadIcon className="w-8 h-8" />
+                <BotHeadIcon className="w-7 h-7" />
                 <span className="font-semibold">AI Career Assistant</span>
               </div>
               <div className="flex items-center gap-2">
@@ -330,8 +268,8 @@ export default function AIHelper({
                   }`}
                 >
                   {m.role === "assistant" && (
-                    <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 dark:border-dark-600 dark:bg-dark-800">
-                      <BotHeadIcon className="w-5 h-5" />
+                    <div className="w-7 h-7 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center flex-shrink-0 dark:border-dark-600 dark:bg-dark-800">
+                      <BotHeadIcon className="w-4 h-4" />
                     </div>
                   )}
                   <div
@@ -350,8 +288,8 @@ export default function AIHelper({
               ))}
                 {loading && (
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 dark:border-dark-600 dark:bg-dark-800">
-                      <BotHeadIcon className="w-5 h-5" />
+                    <div className="w-7 h-7 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center flex-shrink-0 dark:border-dark-600 dark:bg-dark-800">
+                      <BotHeadIcon className="w-4 h-4" />
                     </div>
                     <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 dark:bg-dark-700 dark:border-dark-600 dark:text-dark-100">
                       <div
@@ -395,9 +333,9 @@ export default function AIHelper({
         ) : (
           <button
             onClick={() => setIsOpen(true)}
-            className="p-4 rounded-full bg-accent-purple hover:bg-accent-purple/80 shadow-lg transition-colors"
+            className="p-3 rounded-full bg-slate-100 shadow-lg shadow-black/10 hover:bg-slate-200 hover:shadow-xl transition-colors dark:bg-dark-800 dark:hover:bg-dark-700"
           >
-            <BotHeadIcon className="w-7 h-7 text-white" />
+            <BotHeadIcon className="w-8 h-8 text-white" />
           </button>
         )}
       </div>
@@ -408,7 +346,7 @@ export default function AIHelper({
     <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <BotHeadIcon className="w-10 h-10" />
+          <BotHeadIcon className="w-9 h-9" />
           <h3 className="text-lg font-semibold">AI Career Assistant</h3>
         </div>
         {messages.length > 0 && (
@@ -432,8 +370,8 @@ export default function AIHelper({
             }`}
           >
             {m.role === "assistant" && (
-              <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 mt-1 dark:border-dark-600 dark:bg-dark-800">
-                <BotHeadIcon className="w-5 h-5" />
+              <div className="w-7 h-7 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center flex-shrink-0 mt-1 dark:border-dark-600 dark:bg-dark-800">
+                <BotHeadIcon className="w-4 h-4" />
               </div>
             )}
             <div
@@ -452,8 +390,8 @@ export default function AIHelper({
         ))}
         {loading && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 mt-1 dark:border-dark-600 dark:bg-dark-800">
-              <BotHeadIcon className="w-5 h-5" />
+            <div className="w-7 h-7 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center flex-shrink-0 mt-1 dark:border-dark-600 dark:bg-dark-800">
+              <BotHeadIcon className="w-4 h-4" />
             </div>
             <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 dark:bg-dark-700 dark:border-dark-600 dark:text-dark-100">
               <div

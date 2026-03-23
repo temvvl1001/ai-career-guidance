@@ -46,10 +46,10 @@ export default function LandingPage() {
       <Header />
       <main className="pt-16 min-h-screen">
         {/* Hero Section */}
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden min-h-[80vh] flex items-center">
           <div className="absolute inset-0 bg-gradient-to-br from-accent-purple/20 via-transparent to-accent-blue/20" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-dark-900 via-transparent to-transparent" />
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 w-full">
             <div className="text-center max-w-4xl mx-auto">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 animate-fade-in">
                 {isMn ? "Ирээдүйн" : "Discover Your"}{" "}
