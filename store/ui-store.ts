@@ -27,7 +27,7 @@ export const useUiStore = create<UiState>()(
     }),
     {
       name: "ui-storage",
-      skipHydration: true,
+      // skipHydration: true,
       storage: {
         getItem: (name) => {
           if (typeof window === "undefined") return null;

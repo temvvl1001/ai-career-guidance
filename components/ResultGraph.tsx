@@ -7,13 +7,6 @@ import {
   PolarRadiusAxis,
   Radar,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  Cell,
 } from "recharts";
 import { MBTIScores } from "@/lib/mbti-questions";
 
@@ -22,27 +15,77 @@ interface ResultGraphProps {
   scores: MBTIScores;
   strengths: string[];
   weaknesses: string[];
+  locale?: "en" | "mn";
 }
 
-const TRAIT_ORDER = [
-  { key: "E", label: "Extroverted (E)" },
-  { key: "S", label: "Sensing (S)" },
-  { key: "F", label: "Feeling (F)" },
-  { key: "J", label: "Judging (J)" },
-  { key: "I", label: "Introverted (I)" },
-  { key: "N", label: "iNtuition (N)" },
-  { key: "T", label: "Thinking (T)" },
-  { key: "P", label: "Perceiving (P)" },
-] as const;
+// ── Static text translations ───────────────────────────────────────────────
 
-const COLORS = ["#8b5cf6", "#3b82f6", "#10b981", "#f59e0b"];
+const T = {
+  en: {
+    personalityDimensions: "Personality Dimensions",
+    howToRead: "How to read this chart",
+    howToReadDesc1:
+      "Each axis is a personality trait. The farther the point is from the center, the stronger your preference.",
+    howToReadDesc2: (type: string) =>
+      `Labels shown in red match your MBTI type (${type}). Blue dots show the strength of each trait (0–100%).`,
+    strengths: "Strengths",
+    areasToGrow: "Areas to Develop",
+    traits: {
+      E: "Extroverted (E)",
+      S: "Sensing (S)",
+      F: "Feeling (F)",
+      J: "Judging (J)",
+      I: "Introverted (I)",
+      N: "iNtuition (N)",
+      T: "Thinking (T)",
+      P: "Perceiving (P)",
+    },
+    legend: [
+      "E ↔ I: Extroverted vs Introverted",
+      "S ↔ N: Sensing vs iNtuition",
+      "T ↔ F: Thinking vs Feeling",
+      "J ↔ P: Judging vs Perceiving",
+    ],
+  },
+  mn: {
+    personalityDimensions: "Зан чанарын хэмжээсүүд",
+    howToRead: "Графикийг хэрхэн унших вэ",
+    howToReadDesc1:
+      "Тэнхлэг бүр нь зан чанарын шинж чанарыг илэрхийлнэ. Цэг нь төвөөс холдох тусам таны хандлага илүү хүчтэй байна.",
+    howToReadDesc2: (type: string) =>
+      `Улаанаар харагдах шошго нь таны MBTI төрөлтэй (${type}) таарна. Цэнхэр цэгүүд нь шинж чанар бүрийн хүчийг (0–100%) харуулна.`,
+    strengths: "Давуу талууд",
+    areasToGrow: "Хөгжүүлэх талууд",
+    traits: {
+      E: "Экстраверт (E)",
+      S: "Мэдрэхүй (S)",
+      F: "Мэдрэмж (F)",
+      J: "Шийдэмгий (J)",
+      I: "Интроверт (I)",
+      N: "Зөн совин (N)",
+      T: "Сэтгэлгээ (T)",
+      P: "Уян хатан (P)",
+    },
+    legend: [
+      "E ↔ I: Экстраверт vs Интроверт",
+      "S ↔ N: Мэдрэхүй vs Зөн совин",
+      "T ↔ F: Сэтгэлгээ vs Мэдрэмж",
+      "J ↔ P: Шийдэмгий vs Уян хатан",
+    ],
+  },
+};
+
+const TRAIT_ORDER = ["E", "S", "F", "J", "I", "N", "T", "P"] as const;
 
 export default function ResultGraph({
   mbtiType,
   scores,
   strengths,
   weaknesses,
+  locale = "en",
 }: ResultGraphProps) {
+  const t = T[locale];
+
   const normalizeScore = (value: number) =>
     Math.round(((value + 10) / 20) * 100);
 
@@ -52,34 +95,25 @@ export default function ResultGraph({
   const jScore = normalizeScore(scores["J-P"]);
 
   const traitValues: Record<string, number> = {
-    E: eScore,
-    I: 100 - eScore,
-    S: sScore,
-    N: 100 - sScore,
-    T: tScore,
-    F: 100 - tScore,
-    J: jScore,
-    P: 100 - jScore,
+    E: eScore,    I: 100 - eScore,
+    S: sScore,    N: 100 - sScore,
+    T: tScore,    F: 100 - tScore,
+    J: jScore,    P: 100 - jScore,
   };
 
-  const radarData = TRAIT_ORDER.map((trait) => ({
-    trait: trait.key,
-    label: trait.label,
-    value: traitValues[trait.key],
+  const radarData = TRAIT_ORDER.map((key) => ({
+    trait: key,
+    label: t.traits[key],
+    value: traitValues[key],
   }));
 
   const dominantTraits = new Set(mbtiType.split(""));
 
-  const dimensionBarData = Object.entries(scores).map(([key, value]) => ({
-    name: key,
-    value: value,
-    fill: value >= 0 ? "#8b5cf6" : "#3b82f6",
-  }));
-
   return (
     <div className="space-y-8">
+      {/* Radar chart */}
       <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
-        <h3 className="text-lg font-semibold mb-4">Personality Dimensions</h3>
+        <h3 className="text-lg font-semibold mb-4">{t.personalityDimensions}</h3>
         <div className="grid gap-6 md:grid-cols-[1.25fr_0.75fr] md:items-center">
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -142,16 +176,12 @@ export default function ResultGraph({
               </RadarChart>
             </ResponsiveContainer>
           </div>
+
+          {/* Legend / explanation */}
           <div className="text-sm text-dark-300 space-y-3">
-            <p className="text-dark-200 font-medium">How to read this chart</p>
-            <p>
-              Each axis is a personality trait. The farther the point is from
-              the center, the stronger your preference.
-            </p>
-            <p>
-              Labels shown in red match your MBTI type ({mbtiType}). Blue dots
-              show the strength of each trait (0–100%).
-            </p>
+            <p className="text-dark-200 font-medium">{t.howToRead}</p>
+            <p>{t.howToReadDesc1}</p>
+            <p>{t.howToReadDesc2(mbtiType)}</p>
             <div className="grid gap-2 text-sm text-dark-200 sm:grid-cols-2">
               <div>E: {traitValues.E}% / I: {traitValues.I}%</div>
               <div>S: {traitValues.S}% / N: {traitValues.N}%</div>
@@ -159,19 +189,16 @@ export default function ResultGraph({
               <div>J: {traitValues.J}% / P: {traitValues.P}%</div>
             </div>
             <div className="space-y-2">
-              <div>E ↔ I: Extroverted vs Introverted</div>
-              <div>S ↔ N: Sensing vs iNtuition</div>
-              <div>T ↔ F: Thinking vs Feeling</div>
-              <div>J ↔ P: Judging vs Perceiving</div>
+              {t.legend.map((line, i) => <div key={i}>{line}</div>)}
             </div>
           </div>
         </div>
       </div>
 
-
+      {/* Strengths / Weaknesses */}
       <div className="grid md:grid-cols-2 gap-6">
         <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
-          <h3 className="text-lg font-semibold mb-4 text-emerald-400">Strengths</h3>
+          <h3 className="text-lg font-semibold mb-4 text-emerald-400">{t.strengths}</h3>
           <ul className="space-y-2">
             {strengths.map((s, i) => (
               <li key={i} className="flex items-center gap-2 text-dark-300">
@@ -182,7 +209,7 @@ export default function ResultGraph({
           </ul>
         </div>
         <div className="p-6 rounded-2xl bg-dark-800/50 border border-dark-600">
-          <h3 className="text-lg font-semibold mb-4 text-amber-400">Areas to Develop</h3>
+          <h3 className="text-lg font-semibold mb-4 text-amber-400">{t.areasToGrow}</h3>
           <ul className="space-y-2">
             {weaknesses.map((w, i) => (
               <li key={i} className="flex items-center gap-2 text-dark-300">

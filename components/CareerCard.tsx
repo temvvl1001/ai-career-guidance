@@ -1,6 +1,7 @@
 "use client";
 
 import { Career } from "@/lib/career-data";
+import { useUiStore } from "@/store/ui-store";
 import { TrendingUp, DollarSign } from "lucide-react";
 import Link from "next/link";
 
@@ -15,10 +16,14 @@ export default function CareerCard({
   showSkillTest = false,
   matchScore,
 }: CareerCardProps) {
+  const { language } = useUiStore();
+  const isMn = language === "mn";
+
+  // demandLevel англи утгаар шалгах (локалчлагдсан ч гэсэн)
   const demandColor =
-    career.demandLevel === "High"
+    career.demandLevel === "High" || career.demandLevel === ("Өндөр" as string)
       ? "text-emerald-400"
-      : career.demandLevel === "Medium"
+      : career.demandLevel === "Medium" || career.demandLevel === ("Дундаж" as string)
       ? "text-amber-400"
       : "text-dark-400";
 
@@ -29,9 +34,7 @@ export default function CareerCard({
           <h3 className="text-lg font-semibold text-dark-100 group-hover:text-accent-purple transition-colors">
             {career.name}
           </h3>
-          <span
-            className={`flex items-center gap-1 text-xs font-medium ${demandColor}`}
-          >
+          <span className={`flex items-center gap-1 text-xs font-medium ${demandColor}`}>
             <TrendingUp className="w-4 h-4" />
             {career.demandLevel}
           </span>
@@ -48,7 +51,7 @@ export default function CareerCard({
 
         {typeof matchScore === "number" && (
           <div className="mb-4 text-sm font-semibold text-accent-purple">
-            Match Score: {Math.round(matchScore)}%
+            {isMn ? "Таарц" : "Match Score"}: {Math.round(matchScore)}%
           </div>
         )}
 
@@ -70,7 +73,7 @@ export default function CareerCard({
             href={`/skills?career=${encodeURIComponent(career.name)}`}
             className="block w-full py-2 text-center rounded-lg bg-accent-purple/20 text-accent-purple dark:text-white font-medium hover:bg-accent-purple/30 transition-colors"
           >
-            Take Skill Test
+            {isMn ? "Ур чадварын тест өгөх" : "Take Skill Test"}
           </Link>
         )}
       </div>

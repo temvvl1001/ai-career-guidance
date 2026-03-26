@@ -2,14 +2,23 @@
 
 import { useState } from "react";
 import { MBTI_QUESTIONS } from "@/lib/mbti-questions";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useUiStore } from "@/store/ui-store";
+import { ChevronLeft } from "lucide-react";
 
-const OPTIONS = [
+const OPTIONS_EN = [
   { value: 1, label: "Strongly Disagree" },
   { value: 2, label: "Disagree" },
   { value: 3, label: "Neutral" },
   { value: 4, label: "Agree" },
   { value: 5, label: "Strongly Agree" },
+];
+
+const OPTIONS_MN = [
+  { value: 1, label: "Огт санал нийлэхгүй" },
+  { value: 2, label: "Санал нийлэхгүй" },
+  { value: 3, label: "Төвийг сахисан" },
+  { value: 4, label: "Санал нийлэх" },
+  { value: 5, label: "Бүрэн санал нийлэх" },
 ];
 
 interface MBTITestProps {
@@ -20,7 +29,10 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [direction, setDirection] = useState<"next" | "prev">("next");
+  const { language } = useUiStore();
+  const isMn = language === "mn";
 
+  const OPTIONS = isMn ? OPTIONS_MN : OPTIONS_EN;
   const question = MBTI_QUESTIONS[currentIndex];
   const progress = ((currentIndex + 1) / MBTI_QUESTIONS.length) * 100;
 
@@ -56,8 +68,14 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
         <div className="flex justify-between text-sm text-dark-400 mb-2">
-          <span>Question {currentIndex + 1} of {MBTI_QUESTIONS.length}</span>
-          <span>{Math.round(progress)}% complete</span>
+          <span>
+            {isMn
+              ? `${currentIndex + 1} / ${MBTI_QUESTIONS.length} асуулт`
+              : `Question ${currentIndex + 1} of ${MBTI_QUESTIONS.length}`}
+          </span>
+          <span>
+            {Math.round(progress)}% {isMn ? "дууссан" : "complete"}
+          </span>
         </div>
         <div className="h-2 rounded-full bg-dark-700 overflow-hidden">
           <div
@@ -71,7 +89,9 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
         key={question.id}
         className={`p-6 rounded-2xl bg-dark-800/50 border border-dark-600 transform-gpu will-change-transform ${cardAnimation}`}
       >
-        <p className="text-lg text-dark-100 mb-6">{question.question}</p>
+        <p className="text-lg text-dark-100 mb-6">
+          {isMn ? question.questionMn ?? question.question : question.question}
+        </p>
 
         <div className="space-y-3">
           {OPTIONS.map((opt) => (
@@ -96,7 +116,7 @@ export default function MBTITest({ onComplete }: MBTITestProps) {
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-700 text-dark-100 hover:bg-dark-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back
+            {isMn ? "Буцах" : "Back"}
           </button>
         </div>
       </div>
