@@ -1,33 +1,37 @@
+import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-const protectedPaths = ["/dashboard", "/test", "/results", "/skills", "/profile"];
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  const isProtected = protectedPaths.some((p) =>
-    pathname === p || pathname.startsWith(p + "/")
-  );
-
-  if (!isProtected) {
+export default withAuth(
+  function middleware(req) {
+    // Хэрэглэгч нэвтэрсэн үед token мэдээлэл req.nextauth.token дотор ирнэ
+    const token = req.nextauth.token;
+    const isAuth = !!token;
+    
+    // Хэрэв нэвтрээгүй хэрэглэгч хамгаалалттай хуудас руу хандвал 
+    // withAuth автоматаар /login руу шилжүүлнэ (доод талын pages хэсэгт зааснаар)
+    
     return NextResponse.next();
+  },
+  {
+    callbacks: {
+      // authorized функц true буцаавал middleware ажиллана, false бол шууд login руу шиднэ
+      authorized: ({ token }) => !!token,
+    },
+    pages: {
+      // Нэвтрээгүй үед очих хуудас
+      signIn: "/login",
+    },
   }
+);
 
-  const jwtToken = request.cookies.get("auth-token")?.value;
-  const nextAuthToken =
-    request.cookies.get("next-auth.session-token")?.value ||
-    request.cookies.get("__Secure-next-auth.session-token")?.value;
-
-  if (!jwtToken && !nextAuthToken) {
-    const url = new URL("/login", request.url);
-    url.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(url);
-  }
-
-  return NextResponse.next();
-}
-
+// Middleware ажиллах замуудыг энд тодорхойлно
 export const config = {
-  matcher: ["/dashboard/:path*", "/test/:path*", "/results/:path*", "/skills/:path*", "/profile/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/test/:path*",
+    "/results/:path*",
+    "/skills/:path*",
+    "/profile/:path*",
+    "/api/user/:path*", // Хэрэв API-аа бас хамгаалах бол нэмж болно
+  ],
 };
